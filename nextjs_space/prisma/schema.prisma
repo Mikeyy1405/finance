@@ -2,7 +2,7 @@
 generator client {
     provider = "prisma-client-js"
     binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
-    output = "/home/ubuntu/faceless_video_platform/nextjs_space/node_modules/.prisma/client"
+    output = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -106,4 +106,42 @@ model social_media_posts {
   publishedAt  DateTime?
   scheduledFor DateTime?
   metadata     Json?
+}
+
+// ============ FINANCE TRACKING ============
+
+model finance_categories {
+  id           String                @id @default(cuid())
+  name         String                @unique
+  icon         String?
+  color        String?
+  type         String                // "income" | "expense"
+  keywords     String[]              @default([])
+  createdAt    DateTime              @default(now())
+  transactions finance_transactions[]
+  budgets      finance_budgets[]
+}
+
+model finance_transactions {
+  id          String              @id @default(cuid())
+  date        DateTime
+  description String
+  amount      Float
+  type        String              // "income" | "expense"
+  categoryId  String?
+  category    finance_categories? @relation(fields: [categoryId], references: [id])
+  notes       String?
+  source      String              @default("manual") // "manual" | "upload"
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+}
+
+model finance_budgets {
+  id         String              @id @default(cuid())
+  categoryId String
+  category   finance_categories  @relation(fields: [categoryId], references: [id])
+  amount     Float
+  period     String              @default("monthly") // "monthly" | "weekly" | "yearly"
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
 }

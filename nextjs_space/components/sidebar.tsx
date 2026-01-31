@@ -26,6 +26,7 @@ const menuItems = [
   { icon: FileText, label: 'Blog', href: '/create/blog', emoji: '✍️' },
   { icon: Share2, label: 'Social Post', href: '/create/social', emoji: '📱' },
   { icon: Settings, label: 'WordPress', href: '/wordpress', emoji: '⚙️' },
+  { icon: LayoutDashboard, label: 'Financiën', href: '/finance/dashboard', emoji: '💶' },
 ];
 
 export function Sidebar({ className }: SidebarProps) {
