@@ -1,13 +1,11 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/db';
 import { unlink } from 'fs/promises';
 import { existsSync } from 'fs';
 import path from 'path';
 
 export const dynamic = 'force-dynamic';
-
-const prisma = new PrismaClient();
 
 // GET single series
 export async function GET(
