@@ -10,6 +10,7 @@ export default function UploadPage() {
   const [uploading, setUploading] = useState(false)
   const [result, setResult] = useState<{
     total: number; categorized: number; uncategorized: number; message: string
+    keywordCategorized?: number; aiCategorized?: number
   } | null>(null)
   const [error, setError] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
@@ -92,14 +93,18 @@ export default function UploadPage() {
               <div>
                 <p className="font-medium text-green-800 dark:text-green-200">Upload geslaagd</p>
                 <p className="text-sm text-green-700 dark:text-green-300 mt-1">{result.message}</p>
-                <div className="grid grid-cols-3 gap-4 mt-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                   <div>
                     <p className="text-2xl font-bold text-green-800 dark:text-green-200">{result.total}</p>
                     <p className="text-xs text-green-600">Totaal</p>
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-green-800 dark:text-green-200">{result.categorized}</p>
-                    <p className="text-xs text-green-600">Gecategoriseerd</p>
+                    <p className="text-2xl font-bold text-green-800 dark:text-green-200">{result.keywordCategorized ?? result.categorized}</p>
+                    <p className="text-xs text-green-600">Via keywords</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">{result.aiCategorized ?? 0}</p>
+                    <p className="text-xs text-blue-600">Via AI</p>
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-yellow-700 dark:text-yellow-300">{result.uncategorized}</p>
