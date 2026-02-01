@@ -1,8 +1,8 @@
 {
-  "name": "faceless-video-platform",
+  "name": "finance-tracker",
   "version": "1.0.0",
   "private": true,
-  "description": "AI-powered faceless video generation platform",
+  "description": "Personal finance tracker",
   "engines": {
     "node": ">=18.17.0",
     "yarn": ">=1.22.0"

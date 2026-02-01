@@ -1,16 +1,11 @@
-
 import type { Metadata } from 'next';
 import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
-import { Toaster } from '@/components/ui/sonner';
+import { Toaster } from 'sonner';
 
 export const metadata: Metadata = {
-  title: 'FacelessContent - Multi-Channel AI Content Platform',
-  description: 'Genereer automatisch video\'s en blog content voor sociale media en WordPress met AI',
-  icons: {
-    icon: '/favicon.svg',
-    shortcut: '/favicon.svg',
-  },
+  title: 'FinanceTracker - Persoonlijke Financien',
+  description: 'Beheer je persoonlijke financien, budgetten en bankafschriften',
 };
 
 export default function RootLayout({
@@ -28,7 +23,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
-          <Toaster />
+          <Toaster richColors position="top-right" />
         </ThemeProvider>
       </body>
     </html>

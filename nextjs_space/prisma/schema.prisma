@@ -1,108 +1,80 @@
-
 generator client {
-    provider = "prisma-client-js"
-    binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
 }
 
 datasource db {
-    provider = "sqlite"
-    url      = "file:./dev.db"
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
 }
 
-model blog_posts {
-  id              String           @id
-  siteId          String?
-  title           String
-  content         String
-  contentType     String
-  seoTitle        String?
-  metaDescription String?
-  keywords        String?
-  wordCount       Int?
-  htmlContent     String?
-  youtubeUrl      String?
-  status          String           @default("draft")
-  wordpressPostId Int?
-  publishedUrl    String?
-  scheduledAt     DateTime?
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime
-  wordpress_sites wordpress_sites? @relation(fields: [siteId], references: [id])
+model User {
+  id             String        @id @default(cuid())
+  email          String        @unique
+  name           String?
+  passwordHash   String
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  transactions   Transaction[]
+  categories     Category[]
+  budgets        Budget[]
+  bankUploads    BankUpload[]
 }
 
-model keyword_research {
-  id           String   @id
-  siteId       String?
-  keyword      String
-  searchVolume Int?
-  difficulty   String?
-  suggestions  String?
-  createdAt    DateTime @default(now())
+model Category {
+  id           String        @id @default(cuid())
+  name         String
+  type         String
+  icon         String?
+  color        String?
+  keywords     String?
+  userId       String
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+  budgets      Budget[]
+  createdAt    DateTime      @default(now())
+
+  @@unique([name, userId])
 }
 
-model series {
-  id               String   @id
-  name             String
-  format           String
-  presetType       String?
-  customFormat     String?
-  niche            String
-  language         String
-  voice            String
-  voiceStyle       String
-  backgroundMusic  String?
-  musicDescription String?
-  artStyle         String
-  captionStyle     String
-  duration         String
-  videoCount       Int
-  publishSchedule  String?
-  publishTime      String?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime
-  videos           videos[]
+model Transaction {
+  id           String      @id @default(cuid())
+  date         DateTime
+  description  String
+  amount       Float
+  type         String
+  categoryId   String?
+  category     Category?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  userId       String
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bankUploadId String?
+  bankUpload   BankUpload? @relation(fields: [bankUploadId], references: [id], onDelete: SetNull)
+  notes        String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 }
 
-model videos {
-  id           String   @id
-  seriesId     String
-  title        String
-  thumbnailUrl String
-  videoUrl     String?
-  duration     String
-  status       String   @default("generated")
-  createdAt    DateTime @default(now())
-  series       series   @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+model Budget {
+  id         String   @id @default(cuid())
+  amount     Float
+  month      Int
+  year       Int
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([categoryId, month, year, userId])
 }
 
-model wordpress_sites {
-  id          String       @id
-  name        String
-  url         String
-  username    String
-  appPassword String
-  language    String       @default("en")
-  country     String?
-  isActive    Boolean      @default(true)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime
-  blog_posts  blog_posts[]
-}
-
-model social_media_posts {
-  id           String    @id @default(cuid())
-  title        String
-  content      String
-  platform     String
-  postType     String
-  status       String    @default("draft")
-  imagePath    String?
-  imagePrompt  String?
-  hashtags     String    @default("")
-  artStyle     String?   @default("realism")
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  publishedAt  DateTime?
-  scheduledFor DateTime?
-  metadata     Json?
+model BankUpload {
+  id           String        @id @default(cuid())
+  filename     String
+  uploadedAt   DateTime      @default(now())
+  rowCount     Int
+  userId       String
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
 }
