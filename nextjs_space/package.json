@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && prisma db push && prisma db seed && next build",
+    "build": "export DATABASE_URL=${DATABASE_URL:-file:./dev.db} && prisma generate && prisma db push && prisma db seed && next build",
     "start": "next start",
     "lint": "next lint"
   },
