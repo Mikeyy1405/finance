@@ -1,14 +1,29 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
- 
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function formatDuration(seconds: number): string {
-  const hours = Math.floor(seconds / 3600)
-  const minutes = Math.floor((seconds % 3600) / 60)
-  const remainingSeconds = seconds % 60
+export function formatCurrency(amount: number): string {
+  return new Intl.NumberFormat('nl-NL', {
+    style: 'currency',
+    currency: 'EUR',
+  }).format(amount)
+}
 
-  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`
+export function formatDate(date: Date | string): string {
+  return new Intl.DateTimeFormat('nl-NL', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  }).format(new Date(date))
+}
+
+export function getMonthName(month: number): string {
+  const names = [
+    'Januari', 'Februari', 'Maart', 'April', 'Mei', 'Juni',
+    'Juli', 'Augustus', 'September', 'Oktober', 'November', 'December'
+  ]
+  return names[month - 1] || ''
 }
