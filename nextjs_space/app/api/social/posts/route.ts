@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
         platform: platform || 'all',
         postType: postType || 'motivational',
         imagePrompt,
-        hashtags: hashtags || [],
+        hashtags: JSON.stringify(hashtags || []),
         scheduledFor: scheduledFor ? new Date(scheduledFor) : undefined,
         status: 'draft',
       },

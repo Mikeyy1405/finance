@@ -131,7 +131,7 @@ Maak de content engaging, relevant en optimaal voor ${platform}.`;
         postType: postType || 'motivational',
         imagePrompt: generatedContent.imagePrompt,
         imagePath: imagePath,
-        hashtags: generatedContent.hashtags || [],
+        hashtags: JSON.stringify(generatedContent.hashtags || []),
         status: 'draft',
         artStyle: artStyle || 'realism',
       },
