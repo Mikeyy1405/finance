@@ -1,11 +1,9 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/db';
 import { generateVideo } from '@/lib/videoGenerator';
 import path from 'path';
 import fs from 'fs';
-
-const prisma = new PrismaClient();
 
 export async function POST(request: NextRequest) {
   try {
