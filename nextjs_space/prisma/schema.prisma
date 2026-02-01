@@ -2,12 +2,11 @@
 generator client {
     provider = "prisma-client-js"
     binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
-    output = "/home/ubuntu/faceless_video_platform/nextjs_space/node_modules/.prisma/client"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+    provider = "sqlite"
+    url      = "file:./dev.db"
 }
 
 model blog_posts {
@@ -99,7 +98,7 @@ model social_media_posts {
   status       String    @default("draft")
   imagePath    String?
   imagePrompt  String?
-  hashtags     String[]  @default([])
+  hashtags     String    @default("")
   artStyle     String?   @default("realism")
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
