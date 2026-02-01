@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
     return response
   } catch (error) {
     console.error('Login error:', error)
-    return NextResponse.json({ error: 'Er is iets misgegaan' }, { status: 500 })
+    const message = error instanceof Error ? error.message : 'Onbekende fout'
+    return NextResponse.json({ error: `Er is iets misgegaan: ${message}` }, { status: 500 })
   }
 }
