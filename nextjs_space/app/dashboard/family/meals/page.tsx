@@ -21,6 +21,7 @@ import {
   Sandwich,
   ChefHat,
   Cookie,
+  ShoppingCart,
 } from 'lucide-react'
 
 interface Meal {
@@ -29,6 +30,7 @@ interface Meal {
   mealType: string
   name: string
   recipe?: string
+  ingredients?: string
 }
 
 const mealTypes = [
@@ -82,6 +84,7 @@ export default function MealsPage() {
   const [formMealType, setFormMealType] = useState('diner')
   const [formName, setFormName] = useState('')
   const [formRecipe, setFormRecipe] = useState('')
+  const [formIngredients, setFormIngredients] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
   const weekDates = getWeekDates(weekOffset)
@@ -112,6 +115,7 @@ export default function MealsPage() {
     setFormMealType(mealType)
     setFormName('')
     setFormRecipe('')
+    setFormIngredients('')
     setShowForm(true)
   }
 
@@ -127,6 +131,7 @@ export default function MealsPage() {
           mealType: formMealType,
           name: formName.trim(),
           recipe: formRecipe.trim() || undefined,
+          ingredients: formIngredients.trim() || undefined,
         }),
       })
       if (res.ok) {
@@ -249,6 +254,19 @@ export default function MealsPage() {
                 className="rounded-lg"
               />
             </div>
+            <div>
+              <label className="text-sm font-medium flex items-center gap-1.5 mb-1.5 text-muted-foreground">
+                <ShoppingCart className="h-3.5 w-3.5" />
+                Ingrediënten (optioneel)
+              </label>
+              <textarea
+                placeholder="bijv. 500g kipfilet, 2 uien, 1 blik tomaten..."
+                value={formIngredients}
+                onChange={(e) => setFormIngredients(e.target.value)}
+                rows={3}
+                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              />
+            </div>
             <div className="flex gap-2 justify-end">
               <Button variant="ghost" onClick={() => setShowForm(false)} className="rounded-lg">
                 Annuleren
@@ -316,6 +334,12 @@ export default function MealsPage() {
                               <p className="font-medium">{meal.name}</p>
                               {meal.recipe && (
                                 <p className="text-muted-foreground mt-0.5">{meal.recipe}</p>
+                              )}
+                              {meal.ingredients && (
+                                <p className="text-muted-foreground mt-0.5 flex items-start gap-0.5">
+                                  <ShoppingCart className="h-2.5 w-2.5 mt-0.5 shrink-0" />
+                                  <span>{meal.ingredients}</span>
+                                </p>
                               )}
                             </div>
                             <button
