@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
           tx.categoryId = catId
           // Sync transaction type with the assigned category's type
           const catType = categoryTypeMap[catId]
-          if (catType) tx.type = catType
+          if (catType) tx.type = catType as "expense" | "income" | "transfer"
           keywordCategorized++
         }
       }
