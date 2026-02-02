@@ -128,17 +128,55 @@ function parseRow(row: Record<string, string>, headers: string[]): ParsedTransac
 function detectTransfer(description: string): boolean {
   const desc = description.toLowerCase()
   const transferPatterns = [
+    // Spaarrekeningen
     'naar oranje spaarrekening',
     'van oranje spaarrekening',
-    'naar beleggingsrek',
-    'van beleggingsrek',
     'spaarrekening',
     'saldo aanvullen',
-    'overschrijving beleggingsrekening',
-    'kosten beleggen',
     'naar eigen rekening',
     'van eigen rekening',
     'tussenrekening',
+    // Beleggingen
+    'naar beleggingsrek',
+    'van beleggingsrek',
+    'overschrijving beleggingsrekening',
+    'kosten beleggen',
+    'beleggingsrekening',
+    // Beleggingsplatformen
+    'degiro',
+    'meesman',
+    'brand new day',
+    'binck',
+    'lynx',
+    'ing beleggen',
+    'abn amro beleggen',
+    'rabo beleggen',
+    'flatex',
+    'saxo',
+    'freedom24',
+    // Crypto & digitale assets
+    'finst',
+    'bitvavo',
+    'bybit',
+    'binance',
+    'coinbase',
+    'kraken',
+    'crypto',
+    'bitcoin',
+    'ethereum',
+    'btcdirect',
+    // Goud & edelmetalen
+    'goudbaar',
+    'goudstandaard',
+    'hollandgold',
+    'silversilver',
+    'goud.nl',
+    'edelmetaal',
+    // Deposito & sparen
+    'deposito',
+    'raisin',
+    'savedo',
+    'leaprate',
   ]
   return transferPatterns.some(p => desc.includes(p))
 }
