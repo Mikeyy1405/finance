@@ -49,11 +49,11 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <h1 className="text-2xl font-bold">Dashboard</h1>
         <div className="flex gap-2">
           <Select value={String(month)} onValueChange={v => setMonth(parseInt(v))}>
-            <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-[130px]"><SelectValue /></SelectTrigger>
             <SelectContent>
               {Array.from({ length: 12 }, (_, i) => (
                 <SelectItem key={i + 1} value={String(i + 1)}>{getMonthName(i + 1)}</SelectItem>
@@ -73,50 +73,50 @@ export default function DashboardPage() {
       </div>
 
       {/* Summary cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4 md:p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Inkomsten</p>
-                <p className="text-2xl font-bold text-green-600">{formatCurrency(data?.totalIncome || 0)}</p>
+              <div className="min-w-0">
+                <p className="text-xs md:text-sm text-muted-foreground">Inkomsten</p>
+                <p className="text-lg md:text-2xl font-bold text-green-600 truncate">{formatCurrency(data?.totalIncome || 0)}</p>
               </div>
-              <TrendingUp className="h-8 w-8 text-green-600/20" />
+              <TrendingUp className="h-6 w-6 md:h-8 md:w-8 text-green-600/20 shrink-0" />
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4 md:p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Uitgaven</p>
-                <p className="text-2xl font-bold text-red-600">{formatCurrency(data?.totalExpenses || 0)}</p>
+              <div className="min-w-0">
+                <p className="text-xs md:text-sm text-muted-foreground">Uitgaven</p>
+                <p className="text-lg md:text-2xl font-bold text-red-600 truncate">{formatCurrency(data?.totalExpenses || 0)}</p>
               </div>
-              <TrendingDown className="h-8 w-8 text-red-600/20" />
+              <TrendingDown className="h-6 w-6 md:h-8 md:w-8 text-red-600/20 shrink-0" />
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4 md:p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Balans</p>
-                <p className={`text-2xl font-bold ${(data?.balance || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              <div className="min-w-0">
+                <p className="text-xs md:text-sm text-muted-foreground">Balans</p>
+                <p className={`text-lg md:text-2xl font-bold truncate ${(data?.balance || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {formatCurrency(data?.balance || 0)}
                 </p>
               </div>
-              <Wallet className="h-8 w-8 text-primary/20" />
+              <Wallet className="h-6 w-6 md:h-8 md:w-8 text-primary/20 shrink-0" />
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4 md:p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Transacties</p>
-                <p className="text-2xl font-bold">{data?.recentTransactions?.length || 0}</p>
+              <div className="min-w-0">
+                <p className="text-xs md:text-sm text-muted-foreground">Transacties</p>
+                <p className="text-lg md:text-2xl font-bold">{data?.recentTransactions?.length || 0}</p>
               </div>
-              <ArrowUpDown className="h-8 w-8 text-primary/20" />
+              <ArrowUpDown className="h-6 w-6 md:h-8 md:w-8 text-primary/20 shrink-0" />
             </div>
           </CardContent>
         </Card>
