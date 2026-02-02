@@ -59,6 +59,9 @@ export async function POST(req: NextRequest) {
       bankUploadId: upload.id,
     }))
 
+    // Build a map from category ID to category type for syncing transaction types
+    const categoryTypeMap = Object.fromEntries(categories.map(c => [c.id, c.type]))
+
     // Step 1: AI-first categorization — send ALL transactions to AI
     let aiCategorized = 0
     const hasAimlKey = !!process.env.AIML_API_KEY
@@ -79,6 +82,9 @@ export async function POST(req: NextRequest) {
           const tx = transactionsData.find(t => t.index === idx)
           if (tx) {
             tx.categoryId = catId
+            // Sync transaction type with the assigned category's type
+            const catType = categoryTypeMap[catId]
+            if (catType) tx.type = catType
             aiCategorized++
           }
         }
@@ -95,6 +101,9 @@ export async function POST(req: NextRequest) {
         const catId = autoCategorize(tx.description, matchingCats)
         if (catId) {
           tx.categoryId = catId
+          // Sync transaction type with the assigned category's type
+          const catType = categoryTypeMap[catId]
+          if (catType) tx.type = catType
           keywordCategorized++
         }
       }
