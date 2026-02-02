@@ -14,12 +14,13 @@ export const defaultCategories = [
   { name: 'Cadeaus', type: 'expense', icon: '🎁', color: '#f43f5e', keywords: 'cadeau,gift,bol.com,amazon' },
   { name: 'Onderwijs', type: 'expense', icon: '📚', color: '#0ea5e9', keywords: 'studie,opleiding,boeken,cursus,duo' },
   { name: 'Huishouden', type: 'expense', icon: '🧹', color: '#84cc16', keywords: 'ikea,action,blokker,hema,gamma,praxis' },
+  { name: 'Belastingen', type: 'expense', icon: '🏛️', color: '#64748b', keywords: 'belastingdienst,motorrijtuigenbelasting,wegenbelasting,gemeentelijke belasting,waterschapsbelasting,ozb,rioolheffing,afvalstoffenheffing,inkomstenbelasting,aanslag' },
   { name: 'Overig uitgaven', type: 'expense', icon: '📋', color: '#94a3b8', keywords: '' },
 
   // Income categories
   { name: 'Salaris', type: 'income', icon: '💰', color: '#22c55e', keywords: 'salaris,loon,werkgever' },
   { name: 'Freelance', type: 'income', icon: '💻', color: '#3b82f6', keywords: 'freelance,factuur,opdracht' },
-  { name: 'Toeslagen', type: 'income', icon: '🏛️', color: '#8b5cf6', keywords: 'belastingdienst,toeslag,zorgtoeslag,huurtoeslag,kinderbijslag' },
+  { name: 'Toeslagen', type: 'income', icon: '🏛️', color: '#8b5cf6', keywords: 'toeslag,zorgtoeslag,huurtoeslag,kinderbijslag,kinderopvangtoeslag,voorlopige teruggave' },
   { name: 'Beleggingen', type: 'income', icon: '📈', color: '#f59e0b', keywords: 'dividend,belegging,rente,spaarrente' },
   { name: 'Overig inkomsten', type: 'income', icon: '📋', color: '#94a3b8', keywords: '' },
 ]

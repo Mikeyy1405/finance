@@ -1,6 +1,7 @@
 interface CategoryMatch {
   id: string
   name: string
+  type: string
   keywords: string | null
 }
 
@@ -28,7 +29,7 @@ function normalizeDescription(desc: string): string {
   return s
 }
 
-export function autoCategorize(description: string, categories: CategoryMatch[]): string | null {
+export function autoCategorize(description: string, categories: CategoryMatch[], transactionType?: 'expense' | 'income'): string | null {
   const normalized = normalizeDescription(description)
   const lower = description.toLowerCase()
 
@@ -37,6 +38,9 @@ export function autoCategorize(description: string, categories: CategoryMatch[])
 
   for (const cat of categories) {
     if (!cat.keywords) continue
+    // If we know the transaction type, only match categories of the same type
+    if (transactionType && cat.type !== transactionType) continue
+
     const keywords = cat.keywords.split(',').map(k => k.trim().toLowerCase()).filter(Boolean)
 
     for (const keyword of keywords) {
