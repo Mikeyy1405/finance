@@ -1,4 +1,5 @@
-import pdf from 'pdf-parse'
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const pdfParse = require('pdf-parse')
 
 export interface ParsedTransaction {
   date: Date
@@ -13,8 +14,9 @@ export interface ParsedTransaction {
  * by extracting text and finding lines that look like transactions.
  */
 export async function parsePDF(buffer: Buffer): Promise<ParsedTransaction[]> {
-  const data = await pdf(buffer)
-  const text = data.text
+  const parser = new pdfParse.PDFParse()
+  await parser.load(buffer)
+  const text: string = await parser.getText()
   const lines = text.split('\n').map(l => l.trim()).filter(Boolean)
   const transactions: ParsedTransaction[] = []
 

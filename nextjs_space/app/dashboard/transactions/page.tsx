@@ -13,11 +13,14 @@ import { Plus, Pencil, Trash2, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface Category {
-  id: string; name: string; type: string; icon: string | null
+  id: string; name: string; type: string; icon: string | null; color: string | null
 }
 interface Transaction {
   id: string; date: string; description: string; amount: number; type: string
   categoryId: string | null; category: Category | null; notes: string | null
+}
+interface BudgetItem {
+  id: string; amount: number; categoryId: string; category: Category; spent: number; remaining: number
 }
 
 export default function TransactionsPage() {
@@ -32,10 +35,18 @@ export default function TransactionsPage() {
   const [filterType, setFilterType] = useState<string>('all')
   const [search, setSearch] = useState('')
   const [recategorizing, setRecategorizing] = useState(false)
+  const [budgets, setBudgets] = useState<BudgetItem[]>([])
+
+  const loadBudgets = useCallback(() => {
+    fetch(`/api/budgets?month=${month}&year=${year}`).then(r => r.json()).then((data: BudgetItem[] | { error: string }) => {
+      if (Array.isArray(data)) setBudgets(data)
+    })
+  }, [month, year])
 
   const load = useCallback(() => {
     fetch(`/api/transactions?month=${month}&year=${year}`).then(r => r.json()).then(setTransactions)
-  }, [month, year])
+    loadBudgets()
+  }, [month, year, loadBudgets])
 
   useEffect(() => {
     load()
@@ -229,6 +240,41 @@ export default function TransactionsPage() {
           </CardContent>
         </Card>
       </div>
+
+      {budgets.length > 0 && (
+        <Card className="premium-shadow border-border/50">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold tracking-tight">Budget overzicht — {getMonthName(month)} {year}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {budgets.map(b => {
+              const pct = b.amount > 0 ? (b.spent / b.amount) * 100 : 0
+              return (
+                <div key={b.id}>
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-sm font-medium">{b.category.icon} {b.category.name}</span>
+                    <span className={`text-sm font-semibold tabular-nums ${pct > 100 ? 'text-red-600' : pct > 80 ? 'text-amber-600' : 'text-emerald-600'}`}>
+                      {formatCurrency(b.remaining >= 0 ? b.remaining : 0)} resterend
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all duration-500 ease-out ${pct > 100 ? 'bg-red-500' : pct > 80 ? 'bg-amber-500' : 'bg-emerald-500'}`}
+                        style={{ width: `${Math.min(pct, 100)}%` }}
+                      />
+                    </div>
+                    <span className="text-xs text-muted-foreground tabular-nums w-20 text-right">{formatCurrency(b.spent)} / {formatCurrency(b.amount)}</span>
+                  </div>
+                  {b.remaining < 0 && (
+                    <p className="text-xs text-red-500 mt-0.5 font-medium">{formatCurrency(Math.abs(b.remaining))} over budget</p>
+                  )}
+                </div>
+              )
+            })}
+          </CardContent>
+        </Card>
+      )}
 
       <Card className="premium-shadow border-border/50">
         <CardHeader className="pb-3">
