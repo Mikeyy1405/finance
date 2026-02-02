@@ -4,7 +4,12 @@ import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { formatCurrency, getMonthName } from '@/lib/utils'
-import { TrendingUp, TrendingDown, Wallet, ArrowUpDown, ArrowRightLeft, ChevronDown } from 'lucide-react'
+import {
+  TrendingUp, TrendingDown, Wallet, ArrowRightLeft, ChevronDown,
+  Heart, Target, Users, CreditCard, Dumbbell, CheckCircle2, CalendarDays,
+  Weight, Droplets, Moon, PiggyBank
+} from 'lucide-react'
+import Link from 'next/link'
 
 interface DashboardData {
   totalIncome: number
@@ -36,11 +41,49 @@ interface DashboardData {
   }>
 }
 
+const lifeModules = [
+  {
+    label: 'Financien',
+    icon: PiggyBank,
+    gradient: 'from-blue-500 to-blue-700',
+    href: '/dashboard/transactions',
+    description: 'Transacties, budgetten & rapportage',
+  },
+  {
+    label: 'Gezondheid',
+    icon: Heart,
+    gradient: 'from-rose-500 to-pink-600',
+    href: '/dashboard/health',
+    description: 'Gewicht, slaap, water & workouts',
+  },
+  {
+    label: 'Gezin & Huis',
+    icon: Users,
+    gradient: 'from-amber-500 to-orange-600',
+    href: '/dashboard/family',
+    description: 'Kalender, taken & maaltijden',
+  },
+  {
+    label: 'Doelen',
+    icon: Target,
+    gradient: 'from-emerald-500 to-green-600',
+    href: '/dashboard/goals',
+    description: 'Doelen, gewoontes & dagboek',
+  },
+  {
+    label: 'Bezittingen',
+    icon: CreditCard,
+    gradient: 'from-slate-500 to-slate-700',
+    href: '/dashboard/assets/subscriptions',
+    description: 'Voertuigen & abonnementen',
+  },
+]
+
 const summaryCards = [
-  { key: 'income', label: 'Inkomsten', icon: TrendingUp, color: 'blue', gradient: 'from-blue-500 to-blue-700' },
-  { key: 'expenses', label: 'Uitgaven', icon: TrendingDown, color: 'red', gradient: 'from-red-500 to-rose-600' },
-  { key: 'transfers', label: 'Overboekingen', icon: ArrowRightLeft, color: 'orange', gradient: 'from-orange-500 to-amber-600' },
-  { key: 'balance', label: 'Balans', icon: Wallet, color: 'indigo', gradient: 'from-indigo-500 to-blue-600' },
+  { key: 'income', label: 'Inkomsten', icon: TrendingUp, gradient: 'from-blue-500 to-blue-700' },
+  { key: 'expenses', label: 'Uitgaven', icon: TrendingDown, gradient: 'from-red-500 to-rose-600' },
+  { key: 'transfers', label: 'Overboekingen', icon: ArrowRightLeft, gradient: 'from-orange-500 to-amber-600' },
+  { key: 'balance', label: 'Balans', icon: Wallet, gradient: 'from-indigo-500 to-blue-600' },
 ] as const
 
 export default function DashboardPage() {
@@ -98,8 +141,8 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Overzicht van je financien</p>
+          <h1 className="text-2xl font-bold tracking-tight">Life Dashboard</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Beheer alle aspecten van je leven</p>
         </div>
         <div className="flex gap-2">
           <Select value={String(month)} onValueChange={v => setMonth(parseInt(v))}>
@@ -122,29 +165,58 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Summary cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-        {summaryCards.map(card => {
-          const Icon = card.icon
+      {/* Quick access modules */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        {lifeModules.map(mod => {
+          const Icon = mod.icon
           return (
-            <Card key={card.key} className="premium-shadow border-border/50 overflow-hidden relative group">
-              <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} opacity-[0.03] group-hover:opacity-[0.06] transition-opacity duration-300`} />
-              <CardContent className="p-4 md:p-5 relative">
-                <div className="flex items-start justify-between">
-                  <div className="min-w-0 space-y-1">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{card.label}</p>
-                    <p className="text-lg md:text-2xl font-bold tracking-tight truncate">
-                      {getValue(card.key)}
-                    </p>
+            <Link key={mod.label} href={mod.href}>
+              <Card className="premium-shadow border-border/50 overflow-hidden relative group cursor-pointer hover:scale-[1.02] transition-all duration-200">
+                <div className={`absolute inset-0 bg-gradient-to-br ${mod.gradient} opacity-[0.05] group-hover:opacity-[0.12] transition-opacity duration-300`} />
+                <CardContent className="p-4 relative text-center">
+                  <div className={`h-10 w-10 rounded-xl bg-gradient-to-br ${mod.gradient} flex items-center justify-center mx-auto mb-2 shadow-sm`}>
+                    <Icon className="h-5 w-5 text-white" />
                   </div>
-                  <div className={`h-9 w-9 rounded-xl bg-gradient-to-br ${card.gradient} flex items-center justify-center shrink-0 shadow-sm`}>
-                    <Icon className="h-4 w-4 text-white" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                  <p className="text-sm font-semibold">{mod.label}</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5 leading-tight">{mod.description}</p>
+                </CardContent>
+              </Card>
+            </Link>
           )
         })}
+      </div>
+
+      {/* Financial summary cards */}
+      <div>
+        <h2 className="text-base font-semibold mb-3 flex items-center gap-2">
+          <div className="h-5 w-5 rounded-md bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center">
+            <PiggyBank className="h-3 w-3 text-white" />
+          </div>
+          Financieel overzicht
+        </h2>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+          {summaryCards.map(card => {
+            const Icon = card.icon
+            return (
+              <Card key={card.key} className="premium-shadow border-border/50 overflow-hidden relative group">
+                <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} opacity-[0.03] group-hover:opacity-[0.06] transition-opacity duration-300`} />
+                <CardContent className="p-4 md:p-5 relative">
+                  <div className="flex items-start justify-between">
+                    <div className="min-w-0 space-y-1">
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{card.label}</p>
+                      <p className="text-lg md:text-2xl font-bold tracking-tight truncate">
+                        {getValue(card.key)}
+                      </p>
+                    </div>
+                    <div className={`h-9 w-9 rounded-xl bg-gradient-to-br ${card.gradient} flex items-center justify-center shrink-0 shadow-sm`}>
+                      <Icon className="h-4 w-4 text-white" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )
+          })}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
