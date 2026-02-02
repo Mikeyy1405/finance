@@ -31,7 +31,10 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const user = await requireAuth()
-    const { email, password, collaboratorPassword } = await req.json()
+    const body = await req.json()
+    const email = body.email?.trim()
+    const password = body.password?.trim()
+    const collaboratorPassword = body.collaboratorPassword?.trim()
 
     if (!email || !password) {
       return NextResponse.json({ error: 'Email en wachtwoord zijn verplicht' }, { status: 400 })
@@ -60,6 +63,8 @@ export async function POST(req: NextRequest) {
       collaboratorUser = await prisma.user.create({
         data: { email, passwordHash },
       })
+
+      console.log(`New collaborator created: ${email} (id: ${collaboratorUser.id})`)
 
       // Seed default categories for the new user
       await prisma.category.createMany({

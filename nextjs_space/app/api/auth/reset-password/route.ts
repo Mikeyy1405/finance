@@ -4,7 +4,9 @@ import { hashPassword, createToken } from '@/lib/auth'
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password } = await req.json()
+    const body = await req.json()
+    const email = body.email?.trim()
+    const password = body.password?.trim()
 
     if (!email || !password) {
       return NextResponse.json({ error: 'Email en wachtwoord zijn verplicht' }, { status: 400 })
