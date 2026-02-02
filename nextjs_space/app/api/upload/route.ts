@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { requireAuth } from '@/lib/auth'
 import { parseCSV } from '@/lib/csv-parser'
+import { parsePDF } from '@/lib/pdf-parser'
 import { autoCategorize } from '@/lib/categorize'
 import { aiCategorizeTransactions } from '@/lib/aiml'
 
@@ -15,11 +16,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Geen bestand geupload' }, { status: 400 })
     }
 
-    const content = await file.text()
-    const parsed = parseCSV(content)
+    const isPDF = file.name.toLowerCase().endsWith('.pdf') || file.type === 'application/pdf'
+
+    let parsed
+    if (isPDF) {
+      const arrayBuffer = await file.arrayBuffer()
+      parsed = await parsePDF(Buffer.from(arrayBuffer))
+    } else {
+      const content = await file.text()
+      parsed = parseCSV(content)
+    }
 
     if (parsed.length === 0) {
-      return NextResponse.json({ error: 'Geen transacties gevonden in het bestand. Controleer het CSV-formaat.' }, { status: 400 })
+      return NextResponse.json({ error: isPDF
+        ? 'Geen transacties gevonden in het PDF-bestand. Controleer of het een bankafschrift is met transacties.'
+        : 'Geen transacties gevonden in het bestand. Controleer het CSV-formaat.'
+      }, { status: 400 })
     }
 
     // Get user categories for auto-categorization
