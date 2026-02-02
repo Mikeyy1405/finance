@@ -20,6 +20,25 @@ model User {
   budgets        Budget[]
   bankUploads    BankUpload[]
   receipts       Receipt[]
+  // Health module
+  weightLogs     WeightLog[]
+  waterLogs      WaterLog[]
+  sleepLogs      SleepLog[]
+  workouts       Workout[]
+  medications    Medication[]
+  // Family module
+  familyEvents   FamilyEvent[]
+  householdTasks HouseholdTask[]
+  groceryItems   GroceryItem[]
+  mealPlans      MealPlan[]
+  // Goals module
+  goals          Goal[]
+  habits         Habit[]
+  habitLogs      HabitLog[]
+  journalEntries JournalEntry[]
+  // Assets module
+  vehicles       Vehicle[]
+  subscriptions  Subscription[]
 }
 
 model Category {
@@ -94,4 +113,234 @@ model Receipt {
   user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   transactionId String?      @unique
   transaction   Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+}
+
+// ==========================================
+// HEALTH MODULE
+// ==========================================
+
+model WeightLog {
+  id        String   @id @default(cuid())
+  date      DateTime
+  weight    Float    // in kg
+  note      String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model WaterLog {
+  id        String   @id @default(cuid())
+  date      DateTime
+  glasses   Int      // number of glasses (250ml each)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([date, userId])
+}
+
+model SleepLog {
+  id        String   @id @default(cuid())
+  date      DateTime
+  bedTime   DateTime
+  wakeTime  DateTime
+  quality   Int?     // 1-5 rating
+  note      String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model Workout {
+  id          String           @id @default(cuid())
+  date        DateTime
+  type        String           // cardio, strength, flexibility, etc.
+  name        String
+  duration    Int?             // minutes
+  calories    Int?
+  note        String?
+  exercises   WorkoutExercise[]
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime         @default(now())
+}
+
+model WorkoutExercise {
+  id        String  @id @default(cuid())
+  name      String
+  sets      Int?
+  reps      Int?
+  weight    Float?  // kg
+  duration  Int?    // seconds
+  workoutId String
+  workout   Workout @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+}
+
+model Medication {
+  id        String   @id @default(cuid())
+  name      String
+  dosage    String?
+  frequency String   // daily, weekly, as-needed
+  time      String?  // e.g. "08:00"
+  active    Boolean  @default(true)
+  note      String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+// ==========================================
+// FAMILY & HOUSEHOLD MODULE
+// ==========================================
+
+model FamilyEvent {
+  id          String   @id @default(cuid())
+  title       String
+  date        DateTime
+  endDate     DateTime?
+  type        String   // birthday, appointment, school, holiday, other
+  recurring   String?  // yearly, monthly, weekly, none
+  description String?
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+}
+
+model HouseholdTask {
+  id          String    @id @default(cuid())
+  title       String
+  assignedTo  String?
+  frequency   String    // daily, weekly, monthly, once
+  dueDate     DateTime?
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+}
+
+model GroceryItem {
+  id        String   @id @default(cuid())
+  name      String
+  quantity  String?
+  category  String?  // groente, fruit, zuivel, etc.
+  checked   Boolean  @default(false)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model MealPlan {
+  id        String   @id @default(cuid())
+  date      DateTime
+  mealType  String   // breakfast, lunch, dinner, snack
+  name      String
+  recipe    String?  // optional recipe text or link
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+// ==========================================
+// GOALS & PRODUCTIVITY MODULE
+// ==========================================
+
+model Goal {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  category    String    // finance, health, career, personal, family
+  targetDate  DateTime?
+  status      String    @default("active") // active, completed, paused
+  progress    Int       @default(0) // 0-100
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Habit {
+  id          String     @id @default(cuid())
+  name        String
+  icon        String?
+  color       String?
+  frequency   String     @default("daily") // daily, weekly
+  targetCount Int        @default(1)
+  active      Boolean    @default(true)
+  logs        HabitLog[]
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime   @default(now())
+}
+
+model HabitLog {
+  id        String   @id @default(cuid())
+  date      DateTime
+  count     Int      @default(1)
+  habitId   String
+  habit     Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([habitId, date, userId])
+}
+
+model JournalEntry {
+  id        String   @id @default(cuid())
+  date      DateTime
+  title     String?
+  content   String
+  mood      Int?     // 1-5
+  tags      String?  // comma-separated
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+// ==========================================
+// ASSETS & SUBSCRIPTIONS MODULE
+// ==========================================
+
+model Vehicle {
+  id              String           @id @default(cuid())
+  name            String
+  licensePlate    String?
+  make            String?
+  model           String?
+  year            Int?
+  mileage         Int?
+  maintenanceLogs VehicleMaintenance[]
+  userId          String
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt       DateTime         @default(now())
+}
+
+model VehicleMaintenance {
+  id          String   @id @default(cuid())
+  date        DateTime
+  type        String   // apk, oil, tires, service, repair
+  description String?
+  cost        Float?
+  mileage     Int?
+  nextDue     DateTime?
+  vehicleId   String
+  vehicle     Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+}
+
+model Subscription {
+  id          String   @id @default(cuid())
+  name        String
+  amount      Float
+  frequency   String   // monthly, yearly, weekly
+  category    String?  // streaming, software, gym, insurance, etc.
+  startDate   DateTime
+  nextPayment DateTime?
+  active      Boolean  @default(true)
+  note        String?
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
 }
