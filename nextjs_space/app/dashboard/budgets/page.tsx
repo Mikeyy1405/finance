@@ -146,7 +146,7 @@ export default function BudgetsPage() {
           return (
             <Card key={b.id} className="premium-shadow border-border/50 overflow-hidden relative group">
               <div className={`absolute inset-0 opacity-[0.02] group-hover:opacity-[0.04] transition-opacity duration-300 ${
-                pct > 100 ? 'bg-red-500' : pct > 80 ? 'bg-amber-500' : 'bg-emerald-500'
+                pct > 100 ? 'bg-red-500' : pct > 80 ? 'bg-amber-500' : 'bg-blue-500'
               }`} />
               <CardContent className="p-5 relative">
                 <div className="flex justify-between items-start mb-3">
@@ -157,7 +157,7 @@ export default function BudgetsPage() {
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className={`text-sm font-bold tabular-nums ${pct > 100 ? 'text-red-600' : pct > 80 ? 'text-amber-600' : 'text-emerald-600'}`}>
+                    <span className={`text-sm font-bold tabular-nums ${pct > 100 ? 'text-red-600' : pct > 80 ? 'text-amber-600' : 'text-blue-600'}`}>
                       {Math.round(pct)}%
                     </span>
                     <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg hover:text-destructive" onClick={() => handleDelete(b.id)}>
@@ -167,7 +167,7 @@ export default function BudgetsPage() {
                 </div>
                 <div className="h-2 bg-muted rounded-full overflow-hidden">
                   <div
-                    className={`h-full rounded-full transition-all duration-500 ease-out ${pct > 100 ? 'bg-red-500' : pct > 80 ? 'bg-amber-500' : 'bg-emerald-500'}`}
+                    className={`h-full rounded-full transition-all duration-500 ease-out ${pct > 100 ? 'bg-red-500' : pct > 80 ? 'bg-amber-500' : 'bg-blue-500'}`}
                     style={{ width: `${Math.min(pct, 100)}%` }}
                   />
                 </div>
@@ -175,7 +175,7 @@ export default function BudgetsPage() {
                   <p className="text-xs text-red-500 mt-1.5 font-medium">{formatCurrency(Math.abs(b.remaining))} over budget</p>
                 )}
                 {b.remaining > 0 && (
-                  <p className="text-xs text-emerald-600 mt-1.5 font-medium">{formatCurrency(b.remaining)} resterend</p>
+                  <p className="text-xs text-blue-600 mt-1.5 font-medium">{formatCurrency(b.remaining)} resterend</p>
                 )}
               </CardContent>
             </Card>

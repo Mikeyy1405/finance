@@ -82,8 +82,8 @@ function formatSectionContent(text: string): string {
 
 const sectionConfig: Record<AnalysisSection['type'], { icon: React.ElementType; gradient: string; border: string; bg: string }> = {
   summary: { icon: Award, gradient: 'from-blue-500 to-indigo-600', border: 'border-blue-200 dark:border-blue-800/50', bg: 'bg-blue-50/50 dark:bg-blue-950/20' },
-  strengths: { icon: TrendingUp, gradient: 'from-emerald-500 to-teal-600', border: 'border-emerald-200 dark:border-emerald-800/50', bg: 'bg-emerald-50/50 dark:bg-emerald-950/20' },
-  warnings: { icon: AlertTriangle, gradient: 'from-amber-500 to-orange-600', border: 'border-amber-200 dark:border-amber-800/50', bg: 'bg-amber-50/50 dark:bg-amber-950/20' },
+  strengths: { icon: TrendingUp, gradient: 'from-blue-500 to-blue-700', border: 'border-blue-200 dark:border-blue-800/50', bg: 'bg-blue-50/50 dark:bg-blue-950/20' },
+  warnings: { icon: AlertTriangle, gradient: 'from-orange-500 to-amber-600', border: 'border-orange-200 dark:border-orange-800/50', bg: 'bg-orange-50/50 dark:bg-orange-950/20' },
   tips: { icon: Lightbulb, gradient: 'from-violet-500 to-purple-600', border: 'border-violet-200 dark:border-violet-800/50', bg: 'bg-violet-50/50 dark:bg-violet-950/20' },
   budget: { icon: PiggyBank, gradient: 'from-cyan-500 to-blue-600', border: 'border-cyan-200 dark:border-cyan-800/50', bg: 'bg-cyan-50/50 dark:bg-cyan-950/20' },
   goals: { icon: Target, gradient: 'from-rose-500 to-pink-600', border: 'border-rose-200 dark:border-rose-800/50', bg: 'bg-rose-50/50 dark:bg-rose-950/20' },
@@ -193,10 +193,10 @@ export default function ReportsPage() {
   const avgDailySpending = totalExpenses / daysInMonth
 
   const overviewCards = [
-    { label: 'Inkomsten', value: formatCurrency(totalIncome), gradient: 'from-emerald-500 to-teal-600', textColor: 'text-emerald-600' },
+    { label: 'Inkomsten', value: formatCurrency(totalIncome), gradient: 'from-blue-500 to-blue-700', textColor: 'text-blue-600' },
     { label: 'Uitgaven', value: formatCurrency(totalExpenses), gradient: 'from-red-500 to-rose-600', textColor: 'text-red-600' },
-    { label: 'Overboekingen', value: formatCurrency(totalTransfers), gradient: 'from-amber-500 to-orange-600', textColor: 'text-amber-600' },
-    { label: 'Gespaard', value: formatCurrency(savings), gradient: savings >= 0 ? 'from-emerald-500 to-teal-600' : 'from-red-500 to-rose-600', textColor: savings >= 0 ? 'text-emerald-600' : 'text-red-600' },
+    { label: 'Overboekingen', value: formatCurrency(totalTransfers), gradient: 'from-orange-500 to-amber-600', textColor: 'text-orange-600' },
+    { label: 'Gespaard', value: formatCurrency(savings), gradient: savings >= 0 ? 'from-blue-500 to-blue-700' : 'from-red-500 to-rose-600', textColor: savings >= 0 ? 'text-blue-600' : 'text-red-600' },
   ]
 
   return (
@@ -258,7 +258,7 @@ export default function ReportsPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-md shadow-emerald-500/20">
+                <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-md shadow-blue-500/20">
                   <Sparkles className="h-4 w-4 text-white" />
                 </div>
                 <div>
@@ -268,8 +268,8 @@ export default function ReportsPage() {
               </div>
               {score && (
                 <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950/30 dark:to-yellow-950/30 border border-amber-200 dark:border-amber-800/50">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-400">Score</span>
-                  <span className="text-xl font-bold text-amber-600 dark:text-amber-400">{score}</span>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-orange-700 dark:text-orange-400">Score</span>
+                  <span className="text-xl font-bold text-orange-600 dark:text-amber-400">{score}</span>
                 </div>
               )}
             </div>
@@ -312,8 +312,8 @@ export default function ReportsPage() {
             <p className="text-muted-foreground">Geen transacties gevonden voor deze maand.</p>
           ) : (
             <>
-              {savingsRate >= 20 && <p className="text-emerald-700 dark:text-emerald-400">Je bespaart {savingsRate.toFixed(0)}% van je inkomen. Dat is uitstekend!</p>}
-              {savingsRate >= 0 && savingsRate < 20 && <p className="text-amber-700 dark:text-amber-400">Je bespaart {savingsRate.toFixed(0)}% van je inkomen. Probeer richting 20% of meer te streven.</p>}
+              {savingsRate >= 20 && <p className="text-blue-700 dark:text-blue-400">Je bespaart {savingsRate.toFixed(0)}% van je inkomen. Dat is uitstekend!</p>}
+              {savingsRate >= 0 && savingsRate < 20 && <p className="text-orange-700 dark:text-orange-400">Je bespaart {savingsRate.toFixed(0)}% van je inkomen. Probeer richting 20% of meer te streven.</p>}
               {savingsRate < 0 && <p className="text-red-700 dark:text-red-400">Je geeft meer uit dan je verdient deze maand. Bekijk je grootste uitgavencategorieen hieronder.</p>}
               <p className="text-muted-foreground">Gemiddeld geef je <strong className="text-foreground">{formatCurrency(avgDailySpending)}</strong> per dag uit.</p>
               {categorySummaries.length > 0 && (
@@ -322,7 +322,7 @@ export default function ReportsPage() {
                 </p>
               )}
               {expenses.filter(t => !t.category).length > 0 && (
-                <p className="text-amber-700 dark:text-amber-400">
+                <p className="text-orange-700 dark:text-orange-400">
                   {expenses.filter(t => !t.category).length} transacties zijn niet gecategoriseerd.
                   Gebruik de AI-categoriseer knop hierboven of doe het handmatig via Transacties.
                 </p>

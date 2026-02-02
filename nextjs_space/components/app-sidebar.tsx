@@ -47,7 +47,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
     <>
       <div className="px-6 py-8">
         <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-500/25">
             <span className="text-white font-bold text-sm">F</span>
           </div>
           <div>
@@ -122,7 +122,7 @@ export function MobileHeader() {
         </SheetContent>
       </Sheet>
       <div className="flex items-center gap-2.5">
-        <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
+        <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center">
           <span className="text-white font-bold text-xs">F</span>
         </div>
         <h1 className="text-base font-bold tracking-tight">FinanceTracker</h1>

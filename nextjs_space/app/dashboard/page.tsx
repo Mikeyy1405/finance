@@ -37,10 +37,10 @@ interface DashboardData {
 }
 
 const summaryCards = [
-  { key: 'income', label: 'Inkomsten', icon: TrendingUp, color: 'emerald', gradient: 'from-emerald-500 to-teal-600' },
+  { key: 'income', label: 'Inkomsten', icon: TrendingUp, color: 'blue', gradient: 'from-blue-500 to-blue-700' },
   { key: 'expenses', label: 'Uitgaven', icon: TrendingDown, color: 'red', gradient: 'from-red-500 to-rose-600' },
-  { key: 'transfers', label: 'Overboekingen', icon: ArrowRightLeft, color: 'amber', gradient: 'from-amber-500 to-orange-600' },
-  { key: 'balance', label: 'Balans', icon: Wallet, color: 'blue', gradient: 'from-blue-500 to-indigo-600' },
+  { key: 'transfers', label: 'Overboekingen', icon: ArrowRightLeft, color: 'orange', gradient: 'from-orange-500 to-amber-600' },
+  { key: 'balance', label: 'Balans', icon: Wallet, color: 'indigo', gradient: 'from-indigo-500 to-blue-600' },
 ] as const
 
 export default function DashboardPage() {
@@ -233,7 +233,7 @@ export default function DashboardPage() {
                     </div>
                     <div className="h-2 bg-muted rounded-full overflow-hidden">
                       <div
-                        className={`h-full rounded-full transition-all duration-500 ease-out ${b.percentage > 100 ? 'bg-red-500' : b.percentage > 80 ? 'bg-amber-500' : 'bg-emerald-500'}`}
+                        className={`h-full rounded-full transition-all duration-500 ease-out ${b.percentage > 100 ? 'bg-red-500' : b.percentage > 80 ? 'bg-amber-500' : 'bg-blue-500'}`}
                         style={{ width: `${Math.min(b.percentage, 100)}%` }}
                       />
                     </div>
@@ -263,20 +263,20 @@ export default function DashboardPage() {
                     <div key={i} className="text-sm">
                       <div className="flex justify-between mb-1.5">
                         <span className="text-muted-foreground font-medium">{getMonthName(t.month)} {t.year}</span>
-                        <span className={`font-semibold tabular-nums ${t.income - t.expenses >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                        <span className={`font-semibold tabular-nums ${t.income - t.expenses >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
                           {formatCurrency(t.income - t.expenses)}
                         </span>
                       </div>
                       <div className="flex gap-1 h-2.5">
-                        <div className="bg-emerald-500 rounded-full" style={{ width: `${(t.income / max) * 50}%` }} />
-                        <div className="bg-red-400 rounded-full" style={{ width: `${(t.expenses / max) * 50}%` }} />
+                        <div className="bg-blue-500 rounded-full" style={{ width: `${(t.income / max) * 50}%` }} />
+                        <div className="bg-orange-400 rounded-full" style={{ width: `${(t.expenses / max) * 50}%` }} />
                       </div>
                     </div>
                   )
                 })}
                 <div className="flex gap-4 text-xs text-muted-foreground mt-3 pt-3 border-t">
-                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 bg-emerald-500 rounded-full inline-block" /> Inkomsten</span>
-                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 bg-red-400 rounded-full inline-block" /> Uitgaven</span>
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 bg-blue-500 rounded-full inline-block" /> Inkomsten</span>
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 bg-orange-400 rounded-full inline-block" /> Uitgaven</span>
                 </div>
               </div>
             )}
@@ -300,7 +300,7 @@ export default function DashboardPage() {
                         {t.category && ` · ${t.category.icon || ''} ${t.category.name}`}
                       </p>
                     </div>
-                    <span className={`text-sm font-semibold tabular-nums ml-3 ${t.type === 'income' ? 'text-emerald-600' : t.type === 'transfer' ? 'text-amber-600' : 'text-red-600'}`}>
+                    <span className={`text-sm font-semibold tabular-nums ml-3 ${t.type === 'income' ? 'text-blue-600' : t.type === 'transfer' ? 'text-orange-600' : 'text-red-600'}`}>
                       {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
                     </span>
                   </div>
