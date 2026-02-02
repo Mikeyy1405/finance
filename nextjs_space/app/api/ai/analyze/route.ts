@@ -3,10 +3,12 @@ import { prisma } from '@/lib/db'
 import { requireAuth } from '@/lib/auth'
 import { aiAnalyzeMonth } from '@/lib/aiml'
 import { getMonthName } from '@/lib/utils'
+import { getAccessibleUserIds } from '@/lib/collaborators'
 
 export async function POST(req: NextRequest) {
   try {
     const user = await requireAuth()
+    const userIds = await getAccessibleUserIds(user.id)
     const { month, year } = await req.json()
 
     if (!process.env.AIML_API_KEY) {
@@ -18,7 +20,7 @@ export async function POST(req: NextRequest) {
 
     // Gather all data
     const transactions = await prisma.transaction.findMany({
-      where: { userId: user.id, date: { gte: start, lt: end } },
+      where: { userId: { in: userIds }, date: { gte: start, lt: end } },
       include: { category: true },
     })
 
@@ -49,7 +51,7 @@ export async function POST(req: NextRequest) {
 
     // Budget overruns
     const budgets = await prisma.budget.findMany({
-      where: { userId: user.id, month, year },
+      where: { userId: { in: userIds }, month, year },
       include: { category: true },
     })
     const budgetOverruns = budgets
@@ -65,11 +67,11 @@ export async function POST(req: NextRequest) {
       const m = new Date(year, month - 1 - i, 1)
       const mEnd = new Date(m.getFullYear(), m.getMonth() + 1, 1)
       const inc = await prisma.transaction.aggregate({
-        where: { userId: user.id, type: 'income', date: { gte: m, lt: mEnd } },
+        where: { userId: { in: userIds }, type: 'income', date: { gte: m, lt: mEnd } },
         _sum: { amount: true },
       })
       const exp = await prisma.transaction.aggregate({
-        where: { userId: user.id, type: 'expense', date: { gte: m, lt: mEnd } },
+        where: { userId: { in: userIds }, type: 'expense', date: { gte: m, lt: mEnd } },
         _sum: { amount: true },
       })
       trend.push({

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { requireAuth } from '@/lib/auth'
+import { getAccessibleUserIds } from '@/lib/collaborators'
 
 export async function GET(req: NextRequest) {
   try {
@@ -11,7 +12,8 @@ export async function GET(req: NextRequest) {
     const categoryId = url.searchParams.get('categoryId') || undefined
     const type = url.searchParams.get('type') || undefined
 
-    const where: Record<string, unknown> = { userId: user.id }
+    const userIds = await getAccessibleUserIds(user.id)
+    const where: Record<string, unknown> = { userId: { in: userIds } }
 
     if (month && year) {
       const start = new Date(year, month - 1, 1)

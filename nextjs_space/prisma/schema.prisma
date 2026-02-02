@@ -20,6 +20,21 @@ model User {
   budgets        Budget[]
   bankUploads    BankUpload[]
   receipts       Receipt[]
+  // Collaborators: users I've given access to my data
+  collaboratorsGiven    Collaborator[] @relation("Owner")
+  // Collaborators: owners who gave me access to their data
+  collaboratorsReceived Collaborator[] @relation("Collaborator")
+}
+
+model Collaborator {
+  id             String   @id @default(cuid())
+  ownerId        String
+  owner          User     @relation("Owner", fields: [ownerId], references: [id], onDelete: Cascade)
+  collaboratorId String
+  collaborator   User     @relation("Collaborator", fields: [collaboratorId], references: [id], onDelete: Cascade)
+  createdAt      DateTime @default(now())
+
+  @@unique([ownerId, collaboratorId])
 }
 
 model Category {

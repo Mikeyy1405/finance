@@ -14,6 +14,7 @@ import {
   Menu,
   ChevronRight,
   Camera,
+  Users,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -32,6 +33,7 @@ const links = [
   { href: '/dashboard/upload', label: 'Bank Upload', icon: Upload },
   { href: '/dashboard/receipts', label: 'Bonnetjes', icon: Camera },
   { href: '/dashboard/reports', label: 'Rapportage', icon: BarChart3 },
+  { href: '/dashboard/collaborators', label: 'Samenwerken', icon: Users },
 ]
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
