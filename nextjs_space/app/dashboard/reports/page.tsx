@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button'
 import { formatCurrency, getMonthName } from '@/lib/utils'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Sparkles, Brain, Loader2 } from 'lucide-react'
+import { Sparkles, Brain, Loader2, TrendingUp, TrendingDown, AlertTriangle, Lightbulb, PiggyBank, Target, Award } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface Transaction {
@@ -20,17 +20,74 @@ interface CategorySummary {
   avgPerTransaction: number
 }
 
-function formatMarkdown(text: string): string {
+interface AnalysisSection {
+  title: string
+  content: string
+  type: 'summary' | 'strengths' | 'warnings' | 'tips' | 'budget' | 'goals' | 'other'
+}
+
+function parseAnalysisSections(text: string): { score: string | null; sections: AnalysisSection[] } {
+  // Extract financial score (e.g. "8,5/10" or "8.5/10")
+  const scoreMatch = text.match(/(?:score|Score)[:\s]*(\d[,.]?\d?\/10)/i)
+  const score = scoreMatch ? scoreMatch[1] : null
+
+  // Split on markdown headings (## or numbered headings like "1. **Title**" or "1. Title")
+  const sectionRegex = /^(?:#{1,3}\s+|(?:\d+)\.\s+)(.+)$/gm
+  const headings: { title: string; index: number }[] = []
+  let match
+  while ((match = sectionRegex.exec(text)) !== null) {
+    headings.push({ title: match[1].replace(/[*#]/g, '').replace(/^\s*\S+\s*/, (s) => s.trim()), index: match.index })
+  }
+
+  if (headings.length === 0) {
+    return { score, sections: [{ title: 'Analyse', content: text, type: 'other' }] }
+  }
+
+  const sections: AnalysisSection[] = headings.map((h, i) => {
+    const start = text.indexOf('\n', h.index) + 1
+    const end = i < headings.length - 1 ? headings[i + 1].index : text.length
+    const content = text.slice(start, end).trim()
+    const titleLower = h.title.toLowerCase()
+
+    let type: AnalysisSection['type'] = 'other'
+    if (titleLower.includes('samenvatting') || titleLower.includes('overzicht') || titleLower.includes('gezondheid')) type = 'summary'
+    else if (titleLower.includes('sterk') || titleLower.includes('positie') || titleLower.includes('goed')) type = 'strengths'
+    else if (titleLower.includes('aandacht') || titleLower.includes('zwak') || titleLower.includes('verbeter') || titleLower.includes('risico')) type = 'warnings'
+    else if (titleLower.includes('bespaar') || titleLower.includes('tip')) type = 'tips'
+    else if (titleLower.includes('budget')) type = 'budget'
+    else if (titleLower.includes('doel') || titleLower.includes('goal') || titleLower.includes('actie')) type = 'goals'
+
+    return { title: h.title.trim(), content, type }
+  })
+
+  return { score, sections }
+}
+
+function formatSectionContent(text: string): string {
   return text
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    .replace(/^### (.+)$/gm, '<h3 class="font-semibold text-base mt-4 mb-1">$1</h3>')
-    .replace(/^## (.+)$/gm, '<h2 class="font-bold text-lg mt-5 mb-2">$1</h2>')
-    .replace(/^# (.+)$/gm, '<h1 class="font-bold text-xl mt-6 mb-2">$1</h1>')
-    .replace(/^- (.+)$/gm, '<li class="ml-4 list-disc">$1</li>')
-    .replace(/^(\d+)\. (.+)$/gm, '<li class="ml-4 list-decimal">$2</li>')
-    .replace(/\n\n/g, '</p><p class="mb-2">')
+    .replace(/^#{1,3}\s+.+$/gm, '')
+    .replace(/^---+$/gm, '')
+    .replace(/^[•●]\s*(.+)$/gm, '<li>$1</li>')
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
+    .replace(/^(\d+)\.\s+(.+)$/gm, '<li>$2</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g, (m) => `<ul class="space-y-1.5">${m}</ul>`)
+    .replace(/\n\n+/g, '</p><p class="mb-2">')
     .replace(/\n/g, '<br/>')
+    .replace(/<p class="mb-2"><\/p>/g, '')
+    .replace(/^\s*<br\/>\s*/g, '')
+    .trim()
+}
+
+const sectionConfig: Record<AnalysisSection['type'], { icon: React.ElementType; gradient: string; border: string; bg: string }> = {
+  summary: { icon: Award, gradient: 'from-blue-500 to-indigo-600', border: 'border-blue-200 dark:border-blue-800/50', bg: 'bg-blue-50/50 dark:bg-blue-950/20' },
+  strengths: { icon: TrendingUp, gradient: 'from-emerald-500 to-teal-600', border: 'border-emerald-200 dark:border-emerald-800/50', bg: 'bg-emerald-50/50 dark:bg-emerald-950/20' },
+  warnings: { icon: AlertTriangle, gradient: 'from-amber-500 to-orange-600', border: 'border-amber-200 dark:border-amber-800/50', bg: 'bg-amber-50/50 dark:bg-amber-950/20' },
+  tips: { icon: Lightbulb, gradient: 'from-violet-500 to-purple-600', border: 'border-violet-200 dark:border-violet-800/50', bg: 'bg-violet-50/50 dark:bg-violet-950/20' },
+  budget: { icon: PiggyBank, gradient: 'from-cyan-500 to-blue-600', border: 'border-cyan-200 dark:border-cyan-800/50', bg: 'bg-cyan-50/50 dark:bg-cyan-950/20' },
+  goals: { icon: Target, gradient: 'from-rose-500 to-pink-600', border: 'border-rose-200 dark:border-rose-800/50', bg: 'bg-rose-50/50 dark:bg-rose-950/20' },
+  other: { icon: Sparkles, gradient: 'from-gray-500 to-slate-600', border: 'border-border/50', bg: 'bg-muted/30' },
 }
 
 export default function ReportsPage() {
@@ -195,21 +252,56 @@ export default function ReportsPage() {
         )}
       </div>
 
-      {aiAnalysis && (
-        <Card className="border-primary/20 bg-primary/[0.02] premium-shadow">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base font-semibold tracking-tight flex items-center gap-2">
-              <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
-                <Sparkles className="h-3.5 w-3.5 text-white" />
+      {aiAnalysis && (() => {
+        const { score, sections } = parseAnalysisSections(aiAnalysis)
+        return (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-md shadow-emerald-500/20">
+                  <Sparkles className="h-4 w-4 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold tracking-tight">AI Financiele Analyse</h2>
+                  <p className="text-xs text-muted-foreground">{getMonthName(month)} {year}</p>
+                </div>
               </div>
-              AI Financiele Analyse - {getMonthName(month)} {year}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: formatMarkdown(aiAnalysis) }} />
-          </CardContent>
-        </Card>
-      )}
+              {score && (
+                <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-950/30 dark:to-yellow-950/30 border border-amber-200 dark:border-amber-800/50">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-400">Score</span>
+                  <span className="text-xl font-bold text-amber-600 dark:text-amber-400">{score}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {sections.map((section, i) => {
+                const config = sectionConfig[section.type]
+                const Icon = config.icon
+                const isFullWidth = section.type === 'summary'
+                return (
+                  <Card key={i} className={`${config.border} ${config.bg} overflow-hidden ${isFullWidth ? 'md:col-span-2' : ''}`}>
+                    <CardHeader className="pb-2 pt-4 px-4">
+                      <CardTitle className="text-sm font-semibold tracking-tight flex items-center gap-2">
+                        <div className={`h-6 w-6 rounded-lg bg-gradient-to-br ${config.gradient} flex items-center justify-center flex-shrink-0`}>
+                          <Icon className="h-3 w-3 text-white" />
+                        </div>
+                        {section.title.replace(/^[\s🎯💪⚠️💡🏦📊✅❌]+/, '').trim()}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="px-4 pb-4">
+                      <div
+                        className="text-sm text-muted-foreground leading-relaxed [&_strong]:text-foreground [&_strong]:font-semibold [&_ul]:list-disc [&_ul]:pl-4 [&_ul]:space-y-1 [&_li]:text-sm"
+                        dangerouslySetInnerHTML={{ __html: formatSectionContent(section.content) }}
+                      />
+                    </CardContent>
+                  </Card>
+                )
+              })}
+            </div>
+          </div>
+        )
+      })()}
 
       <Card className="premium-shadow border-border/50">
         <CardHeader className="pb-3">
