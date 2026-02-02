@@ -252,8 +252,9 @@ model MealPlan {
   date      DateTime
   mealType  String   // breakfast, lunch, dinner, snack
   name      String
-  recipe    String?  // optional recipe text or link
-  userId    String
+  recipe      String?  // optional recipe text or link
+  ingredients String?  // comma-separated list of ingredients
+  userId      String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 }
