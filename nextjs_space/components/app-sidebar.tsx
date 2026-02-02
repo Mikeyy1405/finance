@@ -115,6 +115,8 @@ const sections: NavSection[] = [
       { href: '/dashboard/assets/subscriptions', label: 'Abonnementen', icon: CreditCard },
     ],
   },
+]
+
 const links = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/dashboard/transactions', label: 'Transacties', icon: ArrowLeftRight },
