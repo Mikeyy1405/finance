@@ -2,7 +2,7 @@ export interface ParsedTransaction {
   date: Date
   description: string
   amount: number
-  type: 'income' | 'expense'
+  type: 'income' | 'expense' | 'transfer'
 }
 
 // Parses various Dutch bank CSV formats (ING, ABN AMRO, Rabobank, etc.)
@@ -113,12 +113,34 @@ function parseRow(row: Record<string, string>, headers: string[]): ParsedTransac
 
   if (amount === 0) return null
 
+  const absAmount = Math.abs(amount)
+  const isTransfer = detectTransfer(description)
+
   return {
     date,
     description,
-    amount: Math.abs(amount),
-    type: amount >= 0 ? 'income' : 'expense',
+    amount: absAmount,
+    type: isTransfer ? 'transfer' : (amount >= 0 ? 'income' : 'expense'),
   }
+}
+
+// Detect internal transfers (savings, investments, own accounts)
+function detectTransfer(description: string): boolean {
+  const desc = description.toLowerCase()
+  const transferPatterns = [
+    'naar oranje spaarrekening',
+    'van oranje spaarrekening',
+    'naar beleggingsrek',
+    'van beleggingsrek',
+    'spaarrekening',
+    'saldo aanvullen',
+    'overschrijving beleggingsrekening',
+    'kosten beleggen',
+    'naar eigen rekening',
+    'van eigen rekening',
+    'tussenrekening',
+  ]
+  return transferPatterns.some(p => desc.includes(p))
 }
 
 function parseDate(str: string): Date | null {

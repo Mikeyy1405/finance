@@ -5,7 +5,7 @@ export interface ParsedTransaction {
   date: Date
   description: string
   amount: number
-  type: 'income' | 'expense'
+  type: 'income' | 'expense' | 'transfer'
 }
 
 /**
@@ -86,7 +86,7 @@ function tryParseLine(line: string): ParsedTransaction | null {
     date,
     description,
     amount: Math.abs(amount),
-    type: isDebit ? 'expense' : 'income',
+    type: detectTransfer(description) ? 'transfer' : (isDebit ? 'expense' : 'income'),
   }
 }
 
@@ -155,11 +155,29 @@ function tryGroupedParse(lines: string[]): ParsedTransaction[] {
       date,
       description,
       amount: Math.abs(amount),
-      type: isDebit ? 'expense' : 'income',
+      type: detectTransfer(description) ? 'transfer' : (isDebit ? 'expense' : 'income'),
     })
   }
 
   return transactions
+}
+
+function detectTransfer(description: string): boolean {
+  const desc = description.toLowerCase()
+  const transferPatterns = [
+    'naar oranje spaarrekening',
+    'van oranje spaarrekening',
+    'naar beleggingsrek',
+    'van beleggingsrek',
+    'spaarrekening',
+    'saldo aanvullen',
+    'overschrijving beleggingsrekening',
+    'kosten beleggen',
+    'naar eigen rekening',
+    'van eigen rekening',
+    'tussenrekening',
+  ]
+  return transferPatterns.some(p => desc.includes(p))
 }
 
 function parseDate(str: string): Date | null {

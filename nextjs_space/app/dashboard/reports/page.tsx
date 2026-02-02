@@ -94,9 +94,11 @@ export default function ReportsPage() {
 
   const income = transactions.filter(t => t.type === 'income')
   const expenses = transactions.filter(t => t.type === 'expense')
+  const transfers = transactions.filter(t => t.type === 'transfer')
   const totalIncome = income.reduce((s, t) => s + t.amount, 0)
   const totalExpenses = expenses.reduce((s, t) => s + t.amount, 0)
-  const savings = totalIncome - totalExpenses
+  const totalTransfers = transfers.reduce((s, t) => s + t.amount, 0)
+  const savings = totalIncome - totalExpenses - totalTransfers
   const savingsRate = totalIncome > 0 ? (savings / totalIncome) * 100 : 0
 
   const expenseByCategory: Record<string, { name: string; icon: string | null; color: string | null; total: number; count: number }> = {}
@@ -136,8 +138,8 @@ export default function ReportsPage() {
   const overviewCards = [
     { label: 'Inkomsten', value: formatCurrency(totalIncome), gradient: 'from-emerald-500 to-teal-600', textColor: 'text-emerald-600' },
     { label: 'Uitgaven', value: formatCurrency(totalExpenses), gradient: 'from-red-500 to-rose-600', textColor: 'text-red-600' },
+    { label: 'Overboekingen', value: formatCurrency(totalTransfers), gradient: 'from-amber-500 to-orange-600', textColor: 'text-amber-600' },
     { label: 'Gespaard', value: formatCurrency(savings), gradient: savings >= 0 ? 'from-emerald-500 to-teal-600' : 'from-red-500 to-rose-600', textColor: savings >= 0 ? 'text-emerald-600' : 'text-red-600' },
-    { label: 'Spaarpercentage', value: `${savingsRate.toFixed(1)}%`, gradient: savingsRate >= 20 ? 'from-emerald-500 to-teal-600' : savingsRate >= 0 ? 'from-amber-500 to-orange-600' : 'from-red-500 to-rose-600', textColor: savingsRate >= 20 ? 'text-emerald-600' : savingsRate >= 0 ? 'text-amber-600' : 'text-red-600' },
   ]
 
   return (
