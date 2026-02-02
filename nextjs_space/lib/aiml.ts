@@ -7,7 +7,7 @@ const ANALYSIS_MODEL = 'claude-sonnet-4-5'
 
 interface AimlMessage {
   role: 'system' | 'user' | 'assistant'
-  content: string
+  content: string | Array<{ type: string; text?: string; image_url?: { url: string } }>
 }
 
 export async function aimlChat(messages: AimlMessage[], temperature = 0.3, model?: string): Promise<string> {
@@ -178,4 +178,82 @@ Wees specifiek, gebruik de daadwerkelijke bedragen en categorieen. Geef praktisc
     },
     { role: 'user', content: prompt },
   ], 0.5, ANALYSIS_MODEL)
+}
+
+export interface ReceiptData {
+  storeName: string
+  date: string | null
+  items: Array<{ name: string; quantity: number; price: number }>
+  totalAmount: number
+  category: string | null
+  categoryId: string | null
+}
+
+/**
+ * Uses AI vision to read a receipt image and extract structured data.
+ * Sends the image as base64 to Claude for OCR + parsing.
+ */
+export async function aiReadReceipt(
+  base64Image: string,
+  mimeType: string,
+  categories: CategoryForAI[]
+): Promise<ReceiptData> {
+  const expenseCats = categories.filter(c => c.type === 'expense').map(c => `${c.id}: ${c.name}`)
+  const incomeCats = categories.filter(c => c.type === 'income').map(c => `${c.id}: ${c.name}`)
+
+  const response = await aimlChat([
+    {
+      role: 'system',
+      content: `Je bent een expert in het lezen van kassabonnen en bonnetjes. Je extraheert gestructureerde data uit foto's van bonnetjes.
+
+Beschikbare UITGAVEN categorieen:
+${expenseCats.join('\n')}
+
+Beschikbare INKOMSTEN categorieen:
+${incomeCats.join('\n')}
+
+Je antwoord MOET valid JSON zijn, zonder markdown code blocks, zonder extra tekst. Alleen de JSON.
+
+JSON formaat:
+{
+  "storeName": "naam van de winkel",
+  "date": "YYYY-MM-DD" of null als niet leesbaar,
+  "items": [{"name": "product naam", "quantity": 1, "price": 1.99}],
+  "totalAmount": 12.99,
+  "category": "naam van de best passende categorie",
+  "categoryId": "id van de best passende categorie"
+}
+
+REGELS:
+1. Lees ALLE producten/items op het bonnetje
+2. Bedragen in euro's (gebruik punt als decimaalteken)
+3. Als het totaalbedrag zichtbaar is, gebruik dat. Anders tel de items op.
+4. Kies de BEST passende categorie op basis van de winkel en producten
+5. Supermarkten (Albert Heijn, Jumbo, Lidl, etc.) → Boodschappen
+6. Restaurants/cafés → Uit eten
+7. Kleding winkels → Kleding
+8. Apotheek/drogist → Gezondheid
+9. Als de datum niet leesbaar is, geef null`
+    },
+    {
+      role: 'user',
+      content: [
+        { type: 'text', text: 'Lees dit bonnetje en extraheer alle informatie:' },
+        { type: 'image_url', image_url: { url: `data:${mimeType};base64,${base64Image}` } },
+      ],
+    },
+  ], 0.1, CATEGORIZE_MODEL)
+
+  // Parse the JSON response, stripping any markdown code blocks
+  const cleaned = response.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim()
+  const data = JSON.parse(cleaned)
+
+  return {
+    storeName: data.storeName || 'Onbekende winkel',
+    date: data.date || null,
+    items: Array.isArray(data.items) ? data.items : [],
+    totalAmount: typeof data.totalAmount === 'number' ? data.totalAmount : 0,
+    category: data.category || null,
+    categoryId: data.categoryId || null,
+  }
 }
