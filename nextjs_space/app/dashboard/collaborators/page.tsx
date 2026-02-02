@@ -30,6 +30,7 @@ export default function CollaboratorsPage() {
   const [sharedWithMe, setSharedWithMe] = useState<SharedWithMeEntry[]>([])
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [collaboratorPassword, setCollaboratorPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -59,7 +60,7 @@ export default function CollaboratorsPage() {
       const res = await fetch('/api/collaborators', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, collaboratorPassword: collaboratorPassword || undefined }),
       })
 
       const data = await res.json()
@@ -70,12 +71,13 @@ export default function CollaboratorsPage() {
       }
 
       if (data.newUserCreated) {
-        setSuccess(`Er is een nieuw account aangemaakt voor ${email}. Deze persoon kan inloggen via "Wachtwoord vergeten" om een eigen wachtwoord in te stellen, en heeft nu toegang tot je administratie.`)
+        setSuccess(`Er is een nieuw account aangemaakt voor ${email}. Deze persoon kan nu inloggen met het opgegeven wachtwoord en heeft toegang tot je administratie.`)
       } else {
         setSuccess(`${email} heeft nu toegang tot je administratie`)
       }
       setEmail('')
       setPassword('')
+      setCollaboratorPassword('')
       fetchCollaborators()
     } catch {
       setError('Er is iets misgegaan')
@@ -116,7 +118,7 @@ export default function CollaboratorsPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleAdd} className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <div className="space-y-2">
                 <Label htmlFor="email">Emailadres van collaborator</Label>
                 <Input
@@ -127,6 +129,17 @@ export default function CollaboratorsPage() {
                   onChange={e => setEmail(e.target.value)}
                   required
                 />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="collaboratorPassword">Wachtwoord voor collaborator</Label>
+                <Input
+                  id="collaboratorPassword"
+                  type="password"
+                  placeholder="Wachtwoord voor nieuw account"
+                  value={collaboratorPassword}
+                  onChange={e => setCollaboratorPassword(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">Alleen nodig als de persoon nog geen account heeft</p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Jouw wachtwoord (bevestiging)</Label>

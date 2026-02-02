@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { requireAuth, verifyPassword, hashPassword } from '@/lib/auth'
 import { defaultCategories } from '@/lib/categories-seed'
-import crypto from 'crypto'
 
 // GET: list collaborators for the current user (people I share with)
 export async function GET() {
@@ -32,7 +31,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const user = await requireAuth()
-    const { email, password } = await req.json()
+    const { email, password, collaboratorPassword } = await req.json()
 
     if (!email || !password) {
       return NextResponse.json({ error: 'Email en wachtwoord zijn verplicht' }, { status: 400 })
@@ -53,9 +52,11 @@ export async function POST(req: NextRequest) {
     let newUserCreated = false
 
     if (!collaboratorUser) {
-      // Auto-register the collaborator with a random password
-      const tempPassword = crypto.randomBytes(16).toString('hex')
-      const passwordHash = await hashPassword(tempPassword)
+      if (!collaboratorPassword) {
+        return NextResponse.json({ error: 'Vul een initieel wachtwoord in voor het nieuwe account' }, { status: 400 })
+      }
+      // Register the collaborator with the provided password
+      const passwordHash = await hashPassword(collaboratorPassword)
       collaboratorUser = await prisma.user.create({
         data: { email, passwordHash },
       })
