@@ -197,7 +197,7 @@ export default function TransactionsPage() {
               <TableCell className="text-sm hidden sm:table-cell">
                 {t.category ? `${t.category.icon || ''} ${t.category.name}` : <span className="text-muted-foreground">—</span>}
               </TableCell>
-              <TableCell className={`text-right font-semibold tabular-nums ${t.type === 'income' ? 'text-emerald-600' : t.type === 'transfer' ? 'text-amber-600' : 'text-red-600'}`}>
+              <TableCell className={`text-right font-semibold tabular-nums ${t.type === 'income' ? 'text-blue-600' : t.type === 'transfer' ? 'text-orange-600' : 'text-red-600'}`}>
                 {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
               </TableCell>
               <TableCell>
@@ -311,13 +311,13 @@ export default function TransactionsPage() {
       {/* Summary cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <Card className="premium-shadow border-border/50 overflow-hidden relative group">
-          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity duration-300" />
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-700 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity duration-300" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-2 mb-1">
-              <TrendingUp className="h-4 w-4 text-emerald-600" />
+              <TrendingUp className="h-4 w-4 text-blue-600" />
               <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Inkomsten</p>
             </div>
-            <p className="text-xl font-bold text-emerald-600 tabular-nums">{formatCurrency(totalIncome)}</p>
+            <p className="text-xl font-bold text-blue-600 tabular-nums">{formatCurrency(totalIncome)}</p>
           </CardContent>
         </Card>
         <Card className="premium-shadow border-border/50 overflow-hidden relative group">
@@ -341,13 +341,13 @@ export default function TransactionsPage() {
           </CardContent>
         </Card>
         <Card className="premium-shadow border-border/50 overflow-hidden relative group">
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-600 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity duration-300" />
+          <div className="absolute inset-0 bg-gradient-to-br from-orange-500 to-amber-600 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity duration-300" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-2 mb-1">
-              <ArrowRightLeft className="h-4 w-4 text-amber-600" />
+              <ArrowRightLeft className="h-4 w-4 text-orange-600" />
               <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Overboekingen</p>
             </div>
-            <p className="text-xl font-bold text-amber-600 tabular-nums">{formatCurrency(totalTransfer)}</p>
+            <p className="text-xl font-bold text-orange-600 tabular-nums">{formatCurrency(totalTransfer)}</p>
           </CardContent>
         </Card>
       </div>
@@ -426,7 +426,7 @@ export default function TransactionsPage() {
           <Card className="premium-shadow border-border/50">
             <CardHeader className="pb-3">
               <CardTitle className="text-base font-semibold tracking-tight flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-emerald-500" />
+                <TrendingUp className="h-4 w-4 text-blue-500" />
                 Inkomsten per categorie
               </CardTitle>
             </CardHeader>
@@ -442,11 +442,11 @@ export default function TransactionsPage() {
                             {cat.icon} {cat.name}
                             <span className="text-xs text-muted-foreground">({cat.count}x)</span>
                           </span>
-                          <span className="text-sm font-semibold tabular-nums text-emerald-600">{formatCurrency(cat.total)}</span>
+                          <span className="text-sm font-semibold tabular-nums text-blue-600">{formatCurrency(cat.total)}</span>
                         </div>
                         <div className="h-2 bg-muted rounded-full overflow-hidden">
                           <div
-                            className="h-full rounded-full bg-emerald-500 transition-all duration-500 ease-out"
+                            className="h-full rounded-full bg-blue-500 transition-all duration-500 ease-out"
                             style={{ width: `${pct}%` }}
                           />
                         </div>
@@ -474,14 +474,14 @@ export default function TransactionsPage() {
                       <div key={b.id}>
                         <div className="flex justify-between items-center mb-1">
                           <span className="text-sm font-medium">{b.category.icon} {b.category.name}</span>
-                          <span className={`text-sm font-semibold tabular-nums ${pct > 100 ? 'text-red-600' : pct > 80 ? 'text-amber-600' : 'text-emerald-600'}`}>
+                          <span className={`text-sm font-semibold tabular-nums ${pct > 100 ? 'text-red-600' : pct > 80 ? 'text-orange-600' : 'text-blue-600'}`}>
                             {formatCurrency(b.remaining >= 0 ? b.remaining : 0)} resterend
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
                           <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
                             <div
-                              className={`h-full rounded-full transition-all duration-500 ease-out ${pct > 100 ? 'bg-red-500' : pct > 80 ? 'bg-amber-500' : 'bg-emerald-500'}`}
+                              className={`h-full rounded-full transition-all duration-500 ease-out ${pct > 100 ? 'bg-red-500' : pct > 80 ? 'bg-amber-500' : 'bg-blue-500'}`}
                               style={{ width: `${Math.min(pct, 100)}%` }}
                             />
                           </div>
@@ -523,7 +523,7 @@ export default function TransactionsPage() {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base font-semibold tracking-tight flex items-center gap-2">
-                <ArrowRightLeft className="h-4 w-4 text-amber-500" />
+                <ArrowRightLeft className="h-4 w-4 text-orange-500" />
                 {transferTransactions.length} overboekingen — {formatCurrency(totalTransfer)}
               </CardTitle>
             </div>
@@ -540,7 +540,7 @@ export default function TransactionsPage() {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base font-semibold tracking-tight flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-emerald-500" />
+                <TrendingUp className="h-4 w-4 text-blue-500" />
                 {incomeTransactions.length} inkomsten — {formatCurrency(totalIncome)}
               </CardTitle>
             </div>

@@ -18,7 +18,7 @@ export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([])
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editId, setEditId] = useState<string | null>(null)
-  const [form, setForm] = useState({ name: '', type: 'expense', icon: '', color: '#22c55e', keywords: '' })
+  const [form, setForm] = useState({ name: '', type: 'expense', icon: '', color: '#2563eb', keywords: '' })
 
   function load() {
     fetch('/api/categories').then(r => r.json()).then(setCategories)
@@ -27,13 +27,13 @@ export default function CategoriesPage() {
 
   function openAdd() {
     setEditId(null)
-    setForm({ name: '', type: 'expense', icon: '', color: '#22c55e', keywords: '' })
+    setForm({ name: '', type: 'expense', icon: '', color: '#2563eb', keywords: '' })
     setDialogOpen(true)
   }
 
   function openEdit(c: Category) {
     setEditId(c.id)
-    setForm({ name: c.name, type: c.type, icon: c.icon || '', color: c.color || '#22c55e', keywords: c.keywords || '' })
+    setForm({ name: c.name, type: c.type, icon: c.icon || '', color: c.color || '#2563eb', keywords: c.keywords || '' })
     setDialogOpen(true)
   }
 

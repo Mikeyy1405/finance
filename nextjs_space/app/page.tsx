@@ -98,15 +98,15 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-emerald-50/40 to-teal-50/60 dark:from-gray-950 dark:via-gray-900 dark:to-emerald-950/20 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/40 to-orange-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-blue-950/20 p-4">
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-emerald-400/10 rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-teal-400/10 rounded-full blur-3xl" />
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-400/10 rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-400/8 rounded-full blur-3xl" />
       </div>
 
       <Card className="w-full max-w-md premium-shadow-lg border-border/50 relative">
         <CardHeader className="text-center pb-2">
-          <div className="mx-auto mb-4 h-12 w-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg shadow-emerald-500/20">
+          <div className="mx-auto mb-4 h-12 w-12 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-500/25">
             <span className="text-white font-bold text-lg">F</span>
           </div>
           <CardTitle className="text-2xl font-bold tracking-tight">FinanceTracker</CardTitle>
@@ -117,7 +117,7 @@ export default function AuthPage() {
             <div className="mb-4 p-3 text-sm text-red-600 bg-red-50 dark:bg-red-950/30 dark:text-red-400 rounded-xl border border-red-200/50 dark:border-red-900/50">{error}</div>
           )}
           {success && (
-            <div className="mb-4 p-3 text-sm text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30 dark:text-emerald-400 rounded-xl border border-emerald-200/50 dark:border-emerald-900/50">{success}</div>
+            <div className="mb-4 p-3 text-sm text-blue-600 bg-blue-50 dark:bg-blue-950/30 dark:text-blue-400 rounded-xl border border-blue-200/50 dark:border-blue-900/50">{success}</div>
           )}
           <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); setError(''); setSuccess('') }}>
             <TabsList className="grid w-full grid-cols-3 rounded-xl h-11">
