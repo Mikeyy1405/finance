@@ -62,6 +62,7 @@ export async function aiCategorizeTransactions(
 
   const expenseCats = categories.filter(c => c.type === 'expense').map(c => `${c.id}: ${c.name}`)
   const incomeCats = categories.filter(c => c.type === 'income').map(c => `${c.id}: ${c.name}`)
+  const transferCats = categories.filter(c => c.type === 'transfer').map(c => `${c.id}: ${c.name}`)
 
   // Process in batches of 30 (smaller batches = more accurate with complex model)
   const batchSize = 30
@@ -93,12 +94,16 @@ ${expenseCats.join('\n')}
 Beschikbare INKOMSTEN categorieen:
 ${incomeCats.join('\n')}
 
+Beschikbare SPAREN & BELEGGEN categorieen (voor transfers naar spaarrekeningen, beleggingen, crypto, goud):
+${transferCats.join('\n')}
+
 REGELS:
 1. Kijk naar de KERN van de omschrijving (bedrijfsnaam, dienst) en negeer IBAN-nummers, kaartnummers, datums, locaties
 2. Bij twijfel: gebruik het bedrag als hint (€10-50 bij supermarkt = Boodschappen, €800+ maandelijks = Huur/Hypotheek of Salaris)
-3. ELKE transactie MOET een categorie krijgen - gebruik "Overig" alleen als het echt niet te bepalen is
-4. Geef per transactie ALLEEN: index|categorie-ID
-5. Geen uitleg, geen extra tekst, alleen de regels met index|categorie-ID`
+3. Transacties naar spaarrekeningen, beleggingsplatformen (DeGiro, Meesman, etc.), crypto (Finst, Bitvavo, Binance, etc.), goud of edelmetalen zijn GEEN uitgaven maar Sparen & Beleggen
+4. ELKE transactie MOET een categorie krijgen - gebruik "Overig" alleen als het echt niet te bepalen is
+5. Geef per transactie ALLEEN: index|categorie-ID
+6. Geen uitleg, geen extra tekst, alleen de regels met index|categorie-ID`
       },
       {
         role: 'user',
