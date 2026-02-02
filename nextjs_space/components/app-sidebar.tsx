@@ -31,6 +31,7 @@ import {
   Car,
   CreditCard,
   ChevronDown,
+  Users,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -114,6 +115,15 @@ const sections: NavSection[] = [
       { href: '/dashboard/assets/subscriptions', label: 'Abonnementen', icon: CreditCard },
     ],
   },
+const links = [
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/dashboard/transactions', label: 'Transacties', icon: ArrowLeftRight },
+  { href: '/dashboard/categories', label: 'Categorieen', icon: Tags },
+  { href: '/dashboard/budgets', label: 'Budgetten', icon: PiggyBank },
+  { href: '/dashboard/upload', label: 'Bank Upload', icon: Upload },
+  { href: '/dashboard/receipts', label: 'Bonnetjes', icon: Camera },
+  { href: '/dashboard/reports', label: 'Rapportage', icon: BarChart3 },
+  { href: '/dashboard/collaborators', label: 'Samenwerken', icon: Users },
 ]
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {

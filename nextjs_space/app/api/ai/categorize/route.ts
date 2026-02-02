@@ -43,14 +43,21 @@ export async function POST(req: NextRequest) {
 
     const aiResults = await aiCategorizeTransactions(toAI, categories)
 
+    // Build a map from category ID to category type for syncing transaction types
+    const categoryTypeMap = Object.fromEntries(categories.map(c => [c.id, c.type]))
+
     let updated = 0
     for (const [idxStr, catId] of Object.entries(aiResults)) {
       const idx = parseInt(idxStr)
       const tx = uncategorized[idx]
       if (tx) {
+        const catType = categoryTypeMap[catId]
         await prisma.transaction.update({
           where: { id: tx.id },
-          data: { categoryId: catId },
+          data: {
+            categoryId: catId,
+            ...(catType && catType !== tx.type ? { type: catType } : {}),
+          },
         })
         updated++
       }

@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { requireAuth } from '@/lib/auth'
+import { getAccessibleUserIds } from '@/lib/collaborators'
 
 export async function GET(req: NextRequest) {
   try {
     const user = await requireAuth()
+    const userIds = await getAccessibleUserIds(user.id)
     const url = new URL(req.url)
     const month = parseInt(url.searchParams.get('month') || String(new Date().getMonth() + 1))
     const year = parseInt(url.searchParams.get('year') || String(new Date().getFullYear()))
@@ -14,16 +16,16 @@ export async function GET(req: NextRequest) {
 
     // Totals
     const incomeAgg = await prisma.transaction.aggregate({
-      where: { userId: user.id, type: 'income', date: { gte: start, lt: end } },
+      where: { userId: { in: userIds }, type: 'income', date: { gte: start, lt: end } },
       _sum: { amount: true },
     })
     const expenseAgg = await prisma.transaction.aggregate({
-      where: { userId: user.id, type: 'expense', date: { gte: start, lt: end } },
+      where: { userId: { in: userIds }, type: 'expense', date: { gte: start, lt: end } },
       _sum: { amount: true },
     })
 
     const transferAgg = await prisma.transaction.aggregate({
-      where: { userId: user.id, type: 'transfer', date: { gte: start, lt: end } },
+      where: { userId: { in: userIds }, type: 'transfer', date: { gte: start, lt: end } },
       _sum: { amount: true },
     })
 
@@ -34,13 +36,13 @@ export async function GET(req: NextRequest) {
     // Spending by category
     const byCategory = await prisma.transaction.groupBy({
       by: ['categoryId'],
-      where: { userId: user.id, type: 'expense', date: { gte: start, lt: end } },
+      where: { userId: { in: userIds }, type: 'expense', date: { gte: start, lt: end } },
       _sum: { amount: true },
       _count: true,
     })
 
     const categories = await prisma.category.findMany({
-      where: { userId: user.id },
+      where: { userId: { in: userIds } },
     })
     const catMap = Object.fromEntries(categories.map(c => [c.id, c]))
 
@@ -55,7 +57,7 @@ export async function GET(req: NextRequest) {
 
     // Recent transactions
     const recentTransactions = await prisma.transaction.findMany({
-      where: { userId: user.id, date: { gte: start, lt: end } },
+      where: { userId: { in: userIds }, date: { gte: start, lt: end } },
       include: { category: true },
       orderBy: { date: 'desc' },
       take: 10,
@@ -67,15 +69,15 @@ export async function GET(req: NextRequest) {
       const m = new Date(year, month - 1 - i, 1)
       const mEnd = new Date(m.getFullYear(), m.getMonth() + 1, 1)
       const inc = await prisma.transaction.aggregate({
-        where: { userId: user.id, type: 'income', date: { gte: m, lt: mEnd } },
+        where: { userId: { in: userIds }, type: 'income', date: { gte: m, lt: mEnd } },
         _sum: { amount: true },
       })
       const exp = await prisma.transaction.aggregate({
-        where: { userId: user.id, type: 'expense', date: { gte: m, lt: mEnd } },
+        where: { userId: { in: userIds }, type: 'expense', date: { gte: m, lt: mEnd } },
         _sum: { amount: true },
       })
       const trf = await prisma.transaction.aggregate({
-        where: { userId: user.id, type: 'transfer', date: { gte: m, lt: mEnd } },
+        where: { userId: { in: userIds }, type: 'transfer', date: { gte: m, lt: mEnd } },
         _sum: { amount: true },
       })
       trend.push({
@@ -89,7 +91,7 @@ export async function GET(req: NextRequest) {
 
     // Budget status
     const budgets = await prisma.budget.findMany({
-      where: { userId: user.id, month, year },
+      where: { userId: { in: userIds }, month, year },
       include: { category: true },
     })
     const budgetStatus = budgets.map(b => {

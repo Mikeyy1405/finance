@@ -1,16 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { requireAuth } from '@/lib/auth'
+import { getAccessibleUserIds } from '@/lib/collaborators'
 
 export async function GET(req: NextRequest) {
   try {
     const user = await requireAuth()
+    const userIds = await getAccessibleUserIds(user.id)
     const url = new URL(req.url)
     const month = parseInt(url.searchParams.get('month') || String(new Date().getMonth() + 1))
     const year = parseInt(url.searchParams.get('year') || String(new Date().getFullYear()))
 
     const budgets = await prisma.budget.findMany({
-      where: { userId: user.id, month, year },
+      where: { userId: { in: userIds }, month, year },
       include: { category: true },
     })
 
@@ -21,7 +23,7 @@ export async function GET(req: NextRequest) {
     const transactions = await prisma.transaction.groupBy({
       by: ['categoryId'],
       where: {
-        userId: user.id,
+        userId: { in: userIds },
         type: 'expense',
         date: { gte: start, lt: end },
       },

@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { requireAuth } from '@/lib/auth'
+import { getAccessibleUserIds } from '@/lib/collaborators'
 
 export async function GET() {
   try {
     const user = await requireAuth()
+    const userIds = await getAccessibleUserIds(user.id)
     const categories = await prisma.category.findMany({
-      where: { userId: user.id },
+      where: { userId: { in: userIds } },
       orderBy: [{ type: 'asc' }, { name: 'asc' }],
     })
     return NextResponse.json(categories)
