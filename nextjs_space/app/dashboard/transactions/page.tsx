@@ -94,7 +94,7 @@ export default function TransactionsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <h1 className="text-2xl font-bold">Transacties</h1>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
@@ -200,13 +200,13 @@ export default function TransactionsPage() {
         <CardHeader>
           <CardTitle className="text-lg">{filtered.length} transacties</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Datum</TableHead>
                 <TableHead>Omschrijving</TableHead>
-                <TableHead>Categorie</TableHead>
+                <TableHead className="hidden sm:table-cell">Categorie</TableHead>
                 <TableHead className="text-right">Bedrag</TableHead>
                 <TableHead className="w-[80px]"></TableHead>
               </TableRow>
@@ -219,7 +219,7 @@ export default function TransactionsPage() {
                     <div className="text-sm font-medium">{t.description}</div>
                     {t.notes && <div className="text-xs text-muted-foreground">{t.notes}</div>}
                   </TableCell>
-                  <TableCell className="text-sm">
+                  <TableCell className="text-sm hidden sm:table-cell">
                     {t.category ? `${t.category.icon || ''} ${t.category.name}` : <span className="text-muted-foreground">—</span>}
                   </TableCell>
                   <TableCell className={`text-right font-medium ${t.type === 'income' ? 'text-green-600' : 'text-red-600'}`}>

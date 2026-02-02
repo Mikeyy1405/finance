@@ -11,8 +11,16 @@ import {
   Upload,
   BarChart3,
   LogOut,
+  Menu,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle,
+} from '@/components/ui/sheet'
+import { useState } from 'react'
 
 const links = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -23,7 +31,7 @@ const links = [
   { href: '/dashboard/reports', label: 'Rapportage', icon: BarChart3 },
 ]
 
-export function AppSidebar() {
+function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname()
   const router = useRouter()
 
@@ -33,7 +41,7 @@ export function AppSidebar() {
   }
 
   return (
-    <aside className="w-64 min-h-screen border-r bg-card flex flex-col">
+    <>
       <div className="p-6 border-b">
         <h1 className="text-xl font-bold text-primary">FinanceTracker</h1>
         <p className="text-xs text-muted-foreground mt-1">Persoonlijke Financien</p>
@@ -47,6 +55,7 @@ export function AppSidebar() {
             <Link
               key={link.href}
               href={link.href}
+              onClick={onNavigate}
               className={cn(
                 'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
                 active
@@ -67,6 +76,35 @@ export function AppSidebar() {
           Uitloggen
         </Button>
       </div>
+    </>
+  )
+}
+
+export function AppSidebar() {
+  return (
+    <aside className="hidden md:flex w-64 min-h-screen border-r bg-card flex-col">
+      <SidebarContent />
     </aside>
+  )
+}
+
+export function MobileHeader() {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <header className="md:hidden flex items-center gap-3 p-4 border-b bg-card">
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetTrigger asChild>
+          <Button variant="ghost" size="icon">
+            <Menu className="h-5 w-5" />
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="p-0 w-64 flex flex-col">
+          <SheetTitle className="sr-only">Navigatie</SheetTitle>
+          <SidebarContent onNavigate={() => setOpen(false)} />
+        </SheetContent>
+      </Sheet>
+      <h1 className="text-lg font-bold text-primary">FinanceTracker</h1>
+    </header>
   )
 }
