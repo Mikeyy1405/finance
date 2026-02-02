@@ -9,17 +9,18 @@ datasource db {
 }
 
 model User {
-  id             String        @id @default(cuid())
-  email          String        @unique
-  name           String?
-  passwordHash   String
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  transactions   Transaction[]
-  categories     Category[]
-  budgets        Budget[]
-  bankUploads    BankUpload[]
-  receipts       Receipt[]
+  id              String           @id @default(cuid())
+  email           String           @unique
+  name            String?
+  passwordHash    String
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  transactions    Transaction[]
+  categories      Category[]
+  budgets         Budget[]
+  bankUploads     BankUpload[]
+  receipts        Receipt[]
+  bankConnections BankConnection[]
 }
 
 model Category {
@@ -94,4 +95,20 @@ model Receipt {
   user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   transactionId String?      @unique
   transaction   Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+}
+
+model BankConnection {
+  id              String    @id @default(cuid())
+  bankName        String
+  bankCountry     String    @default("NL")
+  sessionId       String?
+  accountId       String?
+  iban            String?
+  validUntil      DateTime?
+  lastSynced      DateTime?
+  status          String    @default("pending") // pending, active, expired, error
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 }
