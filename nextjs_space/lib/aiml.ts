@@ -88,6 +88,11 @@ BELANGRIJK: Nederlandse bankafschriften bevatten vaak cryptische omschrijvingen 
 - "Betaalautomaat 12:34 Shell" → Transport
 - IBANs, kaartnummers en locatiecodes moeten genegeerd worden
 
+LET OP bij BELASTINGDIENST transacties:
+- Belastingdienst UITGAVEN (negatief bedrag) = Belastingen (motorrijtuigenbelasting, inkomstenbelasting, etc.)
+- Belastingdienst INKOMSTEN (positief bedrag) met "toeslag" in omschrijving = Toeslagen
+- Een kenteken in de omschrijving (bijv. "23-NRL-8") wijst op motorrijtuigenbelasting → Belastingen
+
 Beschikbare UITGAVEN categorieen:
 ${expenseCats.join('\n')}
 
