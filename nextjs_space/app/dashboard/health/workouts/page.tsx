@@ -42,7 +42,7 @@ export default function WorkoutsPage() {
   function fetchWorkouts() {
     fetch('/api/health/workouts')
       .then(r => r.json())
-      .then(setWorkouts)
+      .then(d => { if (Array.isArray(d)) setWorkouts(d) })
       .catch(() => {})
   }
 

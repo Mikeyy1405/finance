@@ -111,8 +111,8 @@ export default function HabitsPage() {
         fetch('/api/goals/habits'),
         fetch('/api/goals/habits/log'),
       ]);
-      if (habitsRes.ok) setHabits(await habitsRes.json());
-      if (logsRes.ok) setLogs(await logsRes.json());
+      if (habitsRes.ok) { const d = await habitsRes.json(); if (Array.isArray(d)) setHabits(d); }
+      if (logsRes.ok) { const d = await logsRes.json(); if (Array.isArray(d)) setLogs(d); }
     } catch (err) {
       console.error('Fout bij ophalen gewoonten:', err);
     } finally {

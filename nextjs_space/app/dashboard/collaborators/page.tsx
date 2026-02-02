@@ -35,12 +35,14 @@ export default function CollaboratorsPage() {
   const [success, setSuccess] = useState('')
 
   const fetchCollaborators = useCallback(async () => {
-    const res = await fetch('/api/collaborators')
-    if (res.ok) {
-      const data = await res.json()
-      setCollaborators(data.collaborators)
-      setSharedWithMe(data.sharedWithMe)
-    }
+    try {
+      const res = await fetch('/api/collaborators')
+      if (res.ok) {
+        const data = await res.json()
+        if (data.collaborators) setCollaborators(data.collaborators)
+        if (data.sharedWithMe) setSharedWithMe(data.sharedWithMe)
+      }
+    } catch { /* network error */ }
   }, [])
 
   useEffect(() => {

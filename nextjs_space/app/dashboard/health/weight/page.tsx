@@ -27,7 +27,7 @@ export default function WeightPage() {
   function fetchEntries() {
     fetch('/api/health/weight')
       .then(r => r.json())
-      .then(setEntries)
+      .then(d => { if (Array.isArray(d)) setEntries(d) })
       .catch(() => {})
   }
 

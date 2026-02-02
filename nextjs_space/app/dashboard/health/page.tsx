@@ -53,7 +53,7 @@ export default function HealthPage() {
   useEffect(() => {
     fetch('/api/health/summary')
       .then(r => r.json())
-      .then(setData)
+      .then(d => { if (d && !d.error) setData(d) })
       .catch(() => {})
   }, [])
 

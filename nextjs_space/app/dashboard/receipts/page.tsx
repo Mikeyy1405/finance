@@ -448,7 +448,8 @@ export default function ReceiptsPage() {
             ) : (
               <div className="space-y-2">
                 {history.map(r => {
-                  const items: ReceiptItem[] = r.items ? JSON.parse(r.items) : []
+                  let items: ReceiptItem[] = []
+                  try { if (r.items) items = JSON.parse(r.items) } catch { /* invalid JSON */ }
                   return (
                     <div key={r.id} className="flex items-center justify-between p-3 rounded-xl bg-muted/50 hover:bg-muted/80 transition-colors">
                       <div className="flex items-center gap-3 min-w-0">

@@ -32,7 +32,7 @@ export default function MedicationsPage() {
   function fetchMedications() {
     fetch('/api/health/medications')
       .then(r => r.json())
-      .then(setMedications)
+      .then(d => { if (Array.isArray(d)) setMedications(d) })
       .catch(() => {})
   }
 

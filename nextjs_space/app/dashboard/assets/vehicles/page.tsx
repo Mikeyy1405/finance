@@ -72,7 +72,7 @@ export default function VehiclesPage() {
       const res = await fetch('/api/assets/vehicles')
       if (res.ok) {
         const data = await res.json()
-        setVehicles(data)
+        if (Array.isArray(data)) setVehicles(data)
       }
     } catch (error) {
       console.error('Fout bij ophalen voertuigen:', error)

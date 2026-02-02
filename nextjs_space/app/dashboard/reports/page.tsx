@@ -100,7 +100,10 @@ export default function ReportsPage() {
   const [catLoading, setCatLoading] = useState(false)
 
   const load = useCallback(() => {
-    fetch(`/api/transactions?month=${month}&year=${year}`).then(r => r.json()).then(setTransactions)
+    fetch(`/api/transactions?month=${month}&year=${year}`)
+      .then(r => r.json())
+      .then(d => { if (Array.isArray(d)) setTransactions(d) })
+      .catch(() => {})
     setAiAnalysis(null)
   }, [month, year])
 
