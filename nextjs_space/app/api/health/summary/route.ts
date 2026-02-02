@@ -1,10 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { requireAuth } from '@/lib/auth'
+import { isInSameHousehold } from '@/lib/household'
 
 export async function GET(request: NextRequest) {
   try {
     const user = await requireAuth()
+    const { searchParams } = new URL(request.url)
+    const memberId = searchParams.get('memberId')
+
+    let targetUserId = user.id
+    if (memberId && memberId !== user.id) {
+      const sameHousehold = await isInSameHousehold(user.id, memberId)
+      if (!sameHousehold) {
+        return NextResponse.json({ error: 'Geen toegang' }, { status: 403 })
+      }
+      targetUserId = memberId
+    }
 
     const today = new Date()
     today.setHours(0, 0, 0, 0)
@@ -13,22 +25,22 @@ export async function GET(request: NextRequest) {
 
     const [latestWeight, todayWater, lastSleep, recentWorkoutsCount] = await Promise.all([
       prisma.weightLog.findFirst({
-        where: { userId: user.id },
+        where: { userId: targetUserId },
         orderBy: { date: 'desc' },
       }),
       prisma.waterLog.findFirst({
         where: {
-          userId: user.id,
+          userId: targetUserId,
           date: { gte: today, lt: tomorrow },
         },
       }),
       prisma.sleepLog.findFirst({
-        where: { userId: user.id },
+        where: { userId: targetUserId },
         orderBy: { date: 'desc' },
       }),
       prisma.workout.count({
         where: {
-          userId: user.id,
+          userId: targetUserId,
           date: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
         },
       }),

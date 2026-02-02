@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Scale, Droplets, Moon, Dumbbell, Pill, TrendingUp, TrendingDown, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
+import { FamilyMemberSelector } from '@/components/family-member-selector'
 
 interface HealthSummary {
   weight: {
@@ -49,13 +50,15 @@ const healthCards = [
 
 export default function HealthPage() {
   const [data, setData] = useState<HealthSummary | null>(null)
+  const [selectedMember, setSelectedMember] = useState<string | null>(null)
 
   useEffect(() => {
-    fetch('/api/health/summary')
+    const params = selectedMember ? `?memberId=${selectedMember}` : ''
+    fetch(`/api/health/summary${params}`)
       .then(r => r.json())
       .then(d => { if (d && !d.error) setData(d) })
       .catch(() => {})
-  }, [])
+  }, [selectedMember])
 
   function getCardValue(key: string) {
     if (!data) return '...'
@@ -107,9 +110,12 @@ export default function HealthPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Gezondheid</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">Houd je gezondheid en welzijn bij</p>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Gezondheid</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Houd je gezondheid en welzijn bij</p>
+        </div>
+        <FamilyMemberSelector selectedMemberId={selectedMember} onSelectMember={setSelectedMember} />
       </div>
 
       {/* Summary cards */}

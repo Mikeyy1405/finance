@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Moon, Star, Clock, Trash2, Sun } from 'lucide-react'
+import { FamilyMemberSelector } from '@/components/family-member-selector'
 
 interface SleepEntry {
   id: string
@@ -24,13 +25,15 @@ export default function SleepPage() {
   const [quality, setQuality] = useState(3)
   const [note, setNote] = useState('')
   const [saving, setSaving] = useState(false)
+  const [selectedMember, setSelectedMember] = useState<string | null>(null)
 
   useEffect(() => {
     fetchEntries()
-  }, [])
+  }, [selectedMember])
 
   function fetchEntries() {
-    fetch('/api/health/sleep')
+    const params = selectedMember ? `?memberId=${selectedMember}` : ''
+    fetch(`/api/health/sleep${params}`)
       .then(r => r.json())
       .then(d => { if (Array.isArray(d)) setEntries(d) })
       .catch(() => {})
@@ -79,9 +82,12 @@ export default function SleepPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Slaap bijhouden</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">Registreer en analyseer je slaappatroon</p>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Slaap bijhouden</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Registreer en analyseer je slaappatroon</p>
+        </div>
+        <FamilyMemberSelector selectedMemberId={selectedMember} onSelectMember={setSelectedMember} />
       </div>
 
       {/* Summary cards */}

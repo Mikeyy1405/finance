@@ -31,6 +31,7 @@ import {
   Car,
   CreditCard,
   ChevronDown,
+  Home,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -89,6 +90,7 @@ const sections: NavSection[] = [
     gradient: 'from-amber-500 to-orange-600',
     links: [
       { href: '/dashboard/family', label: 'Overzicht', icon: Users },
+      { href: '/dashboard/family/household', label: 'Gezin beheren', icon: Home },
       { href: '/dashboard/family/calendar', label: 'Kalender', icon: CalendarDays },
       { href: '/dashboard/family/tasks', label: 'Taken', icon: ClipboardList },
       { href: '/dashboard/family/groceries', label: 'Boodschappen', icon: ShoppingCart },

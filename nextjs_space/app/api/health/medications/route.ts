@@ -1,13 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { requireAuth } from '@/lib/auth'
+import { isInSameHousehold } from '@/lib/household'
 
 export async function GET(request: NextRequest) {
   try {
     const user = await requireAuth()
+    const { searchParams } = new URL(request.url)
+    const memberId = searchParams.get('memberId')
+
+    let targetUserId = user.id
+    if (memberId && memberId !== user.id) {
+      const sameHousehold = await isInSameHousehold(user.id, memberId)
+      if (!sameHousehold) {
+        return NextResponse.json({ error: 'Geen toegang' }, { status: 403 })
+      }
+      targetUserId = memberId
+    }
 
     const medications = await prisma.medication.findMany({
-      where: { userId: user.id },
+      where: { userId: targetUserId },
       orderBy: { createdAt: 'desc' },
     })
 

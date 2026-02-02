@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { requireAuth } from '@/lib/auth'
+import { getHouseholdMemberIds, getUserHousehold } from '@/lib/household'
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,7 +10,8 @@ export async function GET(request: NextRequest) {
     const month = searchParams.get('month')
     const year = searchParams.get('year')
 
-    const where: any = { userId: user.id }
+    const memberIds = await getHouseholdMemberIds(user.id)
+    const where: any = { userId: { in: memberIds } }
 
     if (month && year) {
       const start = new Date(parseInt(year), parseInt(month) - 1, 1)
@@ -19,6 +21,7 @@ export async function GET(request: NextRequest) {
 
     const events = await prisma.familyEvent.findMany({
       where,
+      include: { user: { select: { id: true, name: true } } },
       orderBy: { date: 'asc' },
     })
 
@@ -36,8 +39,14 @@ export async function POST(request: NextRequest) {
     const user = await requireAuth()
     const body = await request.json()
 
+    const household = await getUserHousehold(user.id)
+
     const created = await prisma.familyEvent.create({
-      data: { ...body, userId: user.id },
+      data: {
+        ...body,
+        userId: user.id,
+        householdId: household?.id ?? null,
+      },
     })
 
     return NextResponse.json(created, { status: 201 })

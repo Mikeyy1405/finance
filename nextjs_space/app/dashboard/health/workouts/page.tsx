@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Dumbbell, Flame, Clock, Plus, Trash2, X, ChevronDown } from 'lucide-react'
+import { FamilyMemberSelector } from '@/components/family-member-selector'
 
 interface Exercise {
   name: string
@@ -34,13 +35,15 @@ export default function WorkoutsPage() {
   const [exercises, setExercises] = useState<Exercise[]>([])
   const [saving, setSaving] = useState(false)
   const [expandedWorkout, setExpandedWorkout] = useState<string | null>(null)
+  const [selectedMember, setSelectedMember] = useState<string | null>(null)
 
   useEffect(() => {
     fetchWorkouts()
-  }, [])
+  }, [selectedMember])
 
   function fetchWorkouts() {
-    fetch('/api/health/workouts')
+    const params = selectedMember ? `?memberId=${selectedMember}` : ''
+    fetch(`/api/health/workouts${params}`)
       .then(r => r.json())
       .then(d => { if (Array.isArray(d)) setWorkouts(d) })
       .catch(() => {})
@@ -106,9 +109,12 @@ export default function WorkoutsPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Workouts</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">Registreer en bekijk je trainingen</p>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Workouts</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Registreer en bekijk je trainingen</p>
+        </div>
+        <FamilyMemberSelector selectedMemberId={selectedMember} onSelectMember={setSelectedMember} />
       </div>
 
       {/* Summary cards */}

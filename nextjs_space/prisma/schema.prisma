@@ -44,6 +44,8 @@ model User {
   collaboratorsGiven    Collaborator[] @relation("Owner")
   // Collaborators: owners who gave me access to their data
   collaboratorsReceived Collaborator[] @relation("Collaborator")
+  // Household membership
+  householdMembers      HouseholdMember[]
 }
 
 model Collaborator {
@@ -207,6 +209,30 @@ model Medication {
 }
 
 // ==========================================
+// HOUSEHOLD (GEZIN) MODULE
+// ==========================================
+
+model Household {
+  id        String            @id @default(cuid())
+  name      String
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  members   HouseholdMember[]
+}
+
+model HouseholdMember {
+  id          String    @id @default(cuid())
+  role        String    @default("member") // admin, member
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  householdId String
+  household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+
+  @@unique([userId, householdId])
+}
+
+// ==========================================
 // FAMILY & HOUSEHOLD MODULE
 // ==========================================
 
@@ -220,6 +246,7 @@ model FamilyEvent {
   description String?
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  householdId String?
   createdAt   DateTime @default(now())
 }
 
@@ -233,29 +260,32 @@ model HouseholdTask {
   completedAt DateTime?
   userId      String
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  householdId String?
   createdAt   DateTime  @default(now())
 }
 
 model GroceryItem {
-  id        String   @id @default(cuid())
-  name      String
-  quantity  String?
-  category  String?  // groente, fruit, zuivel, etc.
-  checked   Boolean  @default(false)
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
+  id          String   @id @default(cuid())
+  name        String
+  quantity    String?
+  category    String?  // groente, fruit, zuivel, etc.
+  checked     Boolean  @default(false)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  householdId String?
+  createdAt   DateTime @default(now())
 }
 
 model MealPlan {
-  id        String   @id @default(cuid())
-  date      DateTime
-  mealType  String   // breakfast, lunch, dinner, snack
-  name      String
-  recipe    String?  // optional recipe text or link
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
+  id          String   @id @default(cuid())
+  date        DateTime
+  mealType    String   // breakfast, lunch, dinner, snack
+  name        String
+  recipe      String?  // optional recipe text or link
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  householdId String?
+  createdAt   DateTime @default(now())
 }
 
 // ==========================================

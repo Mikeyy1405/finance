@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Pill, Plus, Trash2, CheckCircle2, XCircle, Clock } from 'lucide-react'
+import { FamilyMemberSelector } from '@/components/family-member-selector'
 
 interface Medication {
   id: string
@@ -24,13 +25,15 @@ export default function MedicationsPage() {
   const [frequency, setFrequency] = useState('dagelijks')
   const [time, setTime] = useState('08:00')
   const [saving, setSaving] = useState(false)
+  const [selectedMember, setSelectedMember] = useState<string | null>(null)
 
   useEffect(() => {
     fetchMedications()
-  }, [])
+  }, [selectedMember])
 
   function fetchMedications() {
-    fetch('/api/health/medications')
+    const params = selectedMember ? `?memberId=${selectedMember}` : ''
+    fetch(`/api/health/medications${params}`)
       .then(r => r.json())
       .then(d => { if (Array.isArray(d)) setMedications(d) })
       .catch(() => {})
@@ -85,9 +88,12 @@ export default function MedicationsPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Medicijnen</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">Beheer je medicijnen en supplementen</p>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Medicijnen</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Beheer je medicijnen en supplementen</p>
+        </div>
+        <FamilyMemberSelector selectedMemberId={selectedMember} onSelectMember={setSelectedMember} />
       </div>
 
       {/* Summary */}

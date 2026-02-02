@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Droplets, Plus, Minus, Target, Trophy } from 'lucide-react'
+import { FamilyMemberSelector } from '@/components/family-member-selector'
 
 interface WaterData {
   today: number
@@ -14,6 +15,7 @@ interface WaterData {
 export default function WaterPage() {
   const [data, setData] = useState<WaterData | null>(null)
   const [updating, setUpdating] = useState(false)
+  const [selectedMember, setSelectedMember] = useState<string | null>(null)
 
   const today = data?.today ?? 0
   const target = data?.target ?? 8
@@ -21,10 +23,11 @@ export default function WaterPage() {
 
   useEffect(() => {
     fetchData()
-  }, [])
+  }, [selectedMember])
 
   function fetchData() {
-    fetch('/api/health/water')
+    const params = selectedMember ? `?memberId=${selectedMember}` : ''
+    fetch(`/api/health/water${params}`)
       .then(r => r.json())
       .then(d => { if (d && !d.error) setData(d) })
       .catch(() => {})
@@ -48,9 +51,12 @@ export default function WaterPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Waterinname</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">Houd je dagelijkse waterinname bij</p>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Waterinname</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Houd je dagelijkse waterinname bij</p>
+        </div>
+        <FamilyMemberSelector selectedMemberId={selectedMember} onSelectMember={setSelectedMember} />
       </div>
 
       {/* Main tracker */}

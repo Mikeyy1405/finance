@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Scale, TrendingUp, TrendingDown, Minus, Plus, Trash2 } from 'lucide-react'
+import { FamilyMemberSelector } from '@/components/family-member-selector'
 
 interface WeightEntry {
   id: string
@@ -19,13 +20,15 @@ export default function WeightPage() {
   const [weight, setWeight] = useState('')
   const [note, setNote] = useState('')
   const [saving, setSaving] = useState(false)
+  const [selectedMember, setSelectedMember] = useState<string | null>(null)
 
   useEffect(() => {
     fetchEntries()
-  }, [])
+  }, [selectedMember])
 
   function fetchEntries() {
-    fetch('/api/health/weight')
+    const params = selectedMember ? `?memberId=${selectedMember}` : ''
+    fetch(`/api/health/weight${params}`)
       .then(r => r.json())
       .then(d => { if (Array.isArray(d)) setEntries(d) })
       .catch(() => {})
@@ -64,9 +67,12 @@ export default function WeightPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Gewicht bijhouden</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">Registreer en volg je gewicht</p>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Gewicht bijhouden</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Registreer en volg je gewicht</p>
+        </div>
+        <FamilyMemberSelector selectedMemberId={selectedMember} onSelectMember={setSelectedMember} />
       </div>
 
       {/* Summary */}

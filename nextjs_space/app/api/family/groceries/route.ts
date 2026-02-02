@@ -1,13 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
 import { requireAuth } from '@/lib/auth'
+import { getHouseholdMemberIds, getUserHousehold } from '@/lib/household'
 
 export async function GET(request: NextRequest) {
   try {
     const user = await requireAuth()
 
+    const memberIds = await getHouseholdMemberIds(user.id)
+
     const items = await prisma.groceryItem.findMany({
-      where: { userId: user.id },
+      where: { userId: { in: memberIds } },
+      include: { user: { select: { id: true, name: true } } },
       orderBy: { createdAt: 'desc' },
     })
 
@@ -25,8 +29,14 @@ export async function POST(request: NextRequest) {
     const user = await requireAuth()
     const body = await request.json()
 
+    const household = await getUserHousehold(user.id)
+
     const created = await prisma.groceryItem.create({
-      data: { ...body, userId: user.id },
+      data: {
+        ...body,
+        userId: user.id,
+        householdId: household?.id ?? null,
+      },
     })
 
     return NextResponse.json(created, { status: 201 })
@@ -45,8 +55,9 @@ export async function DELETE(request: NextRequest) {
     const checked = searchParams.get('checked')
 
     if (checked === 'true') {
+      const memberIds = await getHouseholdMemberIds(user.id)
       await prisma.groceryItem.deleteMany({
-        where: { userId: user.id, checked: true },
+        where: { userId: { in: memberIds }, checked: true },
       })
       return NextResponse.json({ success: true })
     }
