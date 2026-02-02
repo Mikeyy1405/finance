@@ -235,9 +235,11 @@ export async function PATCH(req: NextRequest) {
 export async function GET() {
   try {
     const user = await requireAuth()
+    const { getAccessibleUserIds } = await import('@/lib/collaborators')
+    const userIds = await getAccessibleUserIds(user.id)
 
     const receipts = await prisma.receipt.findMany({
-      where: { userId: user.id },
+      where: { userId: { in: userIds } },
       include: {
         transaction: {
           include: { category: true },
