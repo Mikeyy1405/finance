@@ -387,15 +387,15 @@ export default function ReceiptsPage() {
 
       {/* Successfully linked */}
       {linked && (
-        <Card className="border-emerald-200/60 bg-emerald-50/50 dark:bg-emerald-950/20 dark:border-emerald-900/40 premium-shadow">
+        <Card className="border-blue-200/60 bg-blue-50/50 dark:bg-blue-950/20 dark:border-blue-900/40 premium-shadow">
           <CardContent className="p-5 md:p-6">
             <div className="flex items-start gap-3">
-              <div className="h-9 w-9 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
-                <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+              <div className="h-9 w-9 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0">
+                <CheckCircle2 className="h-5 w-5 text-blue-600" />
               </div>
               <div>
-                <p className="font-semibold text-emerald-800 dark:text-emerald-200">Bonnetje gekoppeld</p>
-                <p className="text-sm text-emerald-700 dark:text-emerald-300 mt-0.5">{linked.message}</p>
+                <p className="font-semibold text-blue-800 dark:text-blue-200">Bonnetje gekoppeld</p>
+                <p className="text-sm text-blue-700 dark:text-blue-300 mt-0.5">{linked.message}</p>
               </div>
             </div>
           </CardContent>
@@ -462,7 +462,7 @@ export default function ReceiptsPage() {
                             {items.length > 0 && ` · ${items.length} producten`}
                             {r.transaction?.category && ` · ${r.transaction.category.icon || ''} ${r.transaction.category.name}`}
                             {r.transaction ? (
-                              <span className="text-emerald-600 ml-1">· Gekoppeld</span>
+                              <span className="text-blue-600 ml-1">· Gekoppeld</span>
                             ) : (
                               <span className="text-amber-600 ml-1">· Niet gekoppeld</span>
                             )}

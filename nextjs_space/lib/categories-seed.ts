@@ -15,6 +15,7 @@ export const defaultCategories = [
   { name: 'Onderwijs', type: 'expense', icon: '📚', color: '#0ea5e9', keywords: 'studie,opleiding,boeken,cursus,duo' },
   { name: 'Huishouden', type: 'expense', icon: '🧹', color: '#84cc16', keywords: 'ikea,action,blokker,hema,gamma,praxis' },
   { name: 'Belastingen', type: 'expense', icon: '🏛️', color: '#64748b', keywords: 'belastingdienst,motorrijtuigenbelasting,wegenbelasting,gemeentelijke belasting,waterschapsbelasting,ozb,rioolheffing,afvalstoffenheffing,inkomstenbelasting,aanslag' },
+  { name: 'Sparen & Beleggen', type: 'transfer', icon: '💎', color: '#0d9488', keywords: 'spaarrekening,beleggingsrekening,degiro,meesman,brand new day,binck,lynx,finst,bitvavo,bybit,binance,coinbase,kraken,crypto,bitcoin,ethereum,btcdirect,goud,edelmetaal,deposito,raisin,flatex,saxo,freedom24' },
   { name: 'Overig uitgaven', type: 'expense', icon: '📋', color: '#94a3b8', keywords: '' },
 
   // Income categories

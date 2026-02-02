@@ -70,7 +70,7 @@ export default function UploadPage() {
             onDragLeave={() => setDragOver(false)}
             onDrop={handleDrop}
           >
-            <div className="mx-auto h-14 w-14 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-teal-600/10 flex items-center justify-center mb-5">
+            <div className="mx-auto h-14 w-14 rounded-2xl bg-gradient-to-br from-blue-500/10 to-blue-700/10 flex items-center justify-center mb-5">
               <Upload className="h-7 w-7 text-primary/60" />
             </div>
             <p className="text-lg font-semibold tracking-tight mb-1.5">Sleep je CSV- of PDF-bestand hierheen</p>
@@ -91,23 +91,23 @@ export default function UploadPage() {
       </Card>
 
       {result && (
-        <Card className="border-emerald-200/60 bg-emerald-50/50 dark:bg-emerald-950/20 dark:border-emerald-900/40 premium-shadow">
+        <Card className="border-blue-200/60 bg-blue-50/50 dark:bg-blue-950/20 dark:border-blue-900/40 premium-shadow">
           <CardContent className="p-5 md:p-6">
             <div className="flex items-start gap-3">
-              <div className="h-9 w-9 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
-                <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+              <div className="h-9 w-9 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0">
+                <CheckCircle2 className="h-5 w-5 text-blue-600" />
               </div>
               <div className="flex-1">
-                <p className="font-semibold text-emerald-800 dark:text-emerald-200">Upload geslaagd</p>
-                <p className="text-sm text-emerald-700 dark:text-emerald-300 mt-0.5">{result.message}</p>
+                <p className="font-semibold text-blue-800 dark:text-blue-200">Upload geslaagd</p>
+                <p className="text-sm text-blue-700 dark:text-blue-300 mt-0.5">{result.message}</p>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                   <div>
-                    <p className="text-2xl font-bold text-emerald-800 dark:text-emerald-200 tabular-nums">{result.total}</p>
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-emerald-600">Totaal</p>
+                    <p className="text-2xl font-bold text-blue-800 dark:text-blue-200 tabular-nums">{result.total}</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-blue-600">Totaal</p>
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-emerald-800 dark:text-emerald-200 tabular-nums">{result.keywordCategorized ?? result.categorized}</p>
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-emerald-600">Via keywords</p>
+                    <p className="text-2xl font-bold text-blue-800 dark:text-blue-200 tabular-nums">{result.keywordCategorized ?? result.categorized}</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-blue-600">Via keywords</p>
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-blue-700 dark:text-blue-300 tabular-nums">{result.aiCategorized ?? 0}</p>
