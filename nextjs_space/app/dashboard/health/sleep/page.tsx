@@ -32,7 +32,7 @@ export default function SleepPage() {
   function fetchEntries() {
     fetch('/api/health/sleep')
       .then(r => r.json())
-      .then(setEntries)
+      .then(d => { if (Array.isArray(d)) setEntries(d) })
       .catch(() => {})
   }
 

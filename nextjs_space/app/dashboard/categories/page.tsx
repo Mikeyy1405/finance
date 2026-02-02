@@ -21,7 +21,10 @@ export default function CategoriesPage() {
   const [form, setForm] = useState({ name: '', type: 'expense', icon: '', color: '#2563eb', keywords: '' })
 
   function load() {
-    fetch('/api/categories').then(r => r.json()).then(setCategories)
+    fetch('/api/categories')
+      .then(r => r.json())
+      .then(d => { if (Array.isArray(d)) setCategories(d) })
+      .catch(() => {})
   }
   useEffect(() => { load() }, [])
 

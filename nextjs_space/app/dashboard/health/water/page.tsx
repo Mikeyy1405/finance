@@ -26,7 +26,7 @@ export default function WaterPage() {
   function fetchData() {
     fetch('/api/health/water')
       .then(r => r.json())
-      .then(setData)
+      .then(d => { if (d && !d.error) setData(d) })
       .catch(() => {})
   }
 

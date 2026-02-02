@@ -65,7 +65,7 @@ export default function SubscriptionsPage() {
       const res = await fetch('/api/assets/subscriptions')
       if (res.ok) {
         const data = await res.json()
-        setSubscriptions(data)
+        if (Array.isArray(data)) setSubscriptions(data)
       }
     } catch (error) {
       console.error('Fout bij ophalen abonnementen:', error)

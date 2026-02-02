@@ -100,7 +100,8 @@ export default function DashboardPage() {
   useEffect(() => {
     fetch(`/api/dashboard?month=${month}&year=${year}`)
       .then(r => r.json())
-      .then(setData)
+      .then(d => { if (d && !d.error) setData(d) })
+      .catch(() => {})
     setExpandedCategory(null)
     setCategoryTransactions({})
   }, [month, year])

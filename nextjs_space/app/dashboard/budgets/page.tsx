@@ -29,12 +29,18 @@ export default function BudgetsPage() {
   const [form, setForm] = useState({ categoryId: '', amount: '' })
 
   const load = useCallback(() => {
-    fetch(`/api/budgets?month=${month}&year=${year}`).then(r => r.json()).then(setBudgets)
+    fetch(`/api/budgets?month=${month}&year=${year}`)
+      .then(r => r.json())
+      .then(d => { if (Array.isArray(d)) setBudgets(d) })
+      .catch(() => {})
   }, [month, year])
 
   useEffect(() => {
     load()
-    fetch('/api/categories').then(r => r.json()).then(setCategories)
+    fetch('/api/categories')
+      .then(r => r.json())
+      .then(d => { if (Array.isArray(d)) setCategories(d) })
+      .catch(() => {})
   }, [load])
 
   const expenseCategories = categories.filter(c => c.type === 'expense')

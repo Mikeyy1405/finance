@@ -46,13 +46,19 @@ export default function TransactionsPage() {
   }, [month, year])
 
   const load = useCallback(() => {
-    fetch(`/api/transactions?month=${month}&year=${year}`).then(r => r.json()).then(setTransactions)
+    fetch(`/api/transactions?month=${month}&year=${year}`)
+      .then(r => r.json())
+      .then(d => { if (Array.isArray(d)) setTransactions(d) })
+      .catch(() => {})
     loadBudgets()
   }, [month, year, loadBudgets])
 
   useEffect(() => {
     load()
-    fetch('/api/categories').then(r => r.json()).then(setCategories)
+    fetch('/api/categories')
+      .then(r => r.json())
+      .then(d => { if (Array.isArray(d)) setCategories(d) })
+      .catch(() => {})
   }, [load])
 
   function openAdd() {
