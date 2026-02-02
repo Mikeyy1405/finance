@@ -48,49 +48,54 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    // Step 1: Keyword-based categorization
-    const transactionsData = parsed.map((t, index) => {
-      const matchingCats = categories.filter(c => c.type === t.type)
-      const categoryId = autoCategorize(t.description, matchingCats)
+    const transactionsData = parsed.map((t, index) => ({
+      index,
+      date: t.date,
+      description: t.description,
+      amount: t.amount,
+      type: t.type,
+      categoryId: null as string | null,
+      userId: user.id,
+      bankUploadId: upload.id,
+    }))
 
-      return {
-        index,
-        date: t.date,
-        description: t.description,
-        amount: t.amount,
-        type: t.type,
-        categoryId,
-        userId: user.id,
-        bankUploadId: upload.id,
-      }
-    })
-
-    // Step 2: AI categorization for uncategorized transactions
+    // Step 1: AI-first categorization — send ALL transactions to AI
     let aiCategorized = 0
     const hasAimlKey = !!process.env.AIML_API_KEY
 
     if (hasAimlKey) {
-      const uncategorized = transactionsData
-        .filter(t => !t.categoryId)
-        .map(t => ({ index: t.index, description: t.description, amount: t.amount, type: t.type }))
+      try {
+        const allForAI = transactionsData.map(t => ({
+          index: t.index, description: t.description, amount: t.amount, type: t.type,
+        }))
 
-      if (uncategorized.length > 0) {
-        try {
-          const aiResults = await aiCategorizeTransactions(
-            uncategorized,
-            categories.map(c => ({ id: c.id, name: c.name, type: c.type }))
-          )
+        const aiResults = await aiCategorizeTransactions(
+          allForAI,
+          categories.map(c => ({ id: c.id, name: c.name, type: c.type }))
+        )
 
-          for (const [idxStr, catId] of Object.entries(aiResults)) {
-            const idx = parseInt(idxStr)
-            const tx = transactionsData.find(t => t.index === idx)
-            if (tx && !tx.categoryId) {
-              tx.categoryId = catId
-              aiCategorized++
-            }
+        for (const [idxStr, catId] of Object.entries(aiResults)) {
+          const idx = parseInt(idxStr)
+          const tx = transactionsData.find(t => t.index === idx)
+          if (tx) {
+            tx.categoryId = catId
+            aiCategorized++
           }
-        } catch (err) {
-          console.error('AI categorization failed, falling back to keyword-only:', err)
+        }
+      } catch (err) {
+        console.error('AI categorization failed, falling back to keyword matching:', err)
+      }
+    }
+
+    // Step 2: Keyword fallback — only for transactions AI didn't categorize
+    let keywordCategorized = 0
+    for (const tx of transactionsData) {
+      if (!tx.categoryId) {
+        const matchingCats = categories.filter(c => c.type === tx.type)
+        const catId = autoCategorize(tx.description, matchingCats)
+        if (catId) {
+          tx.categoryId = catId
+          keywordCategorized++
         }
       }
     }
@@ -100,8 +105,7 @@ export async function POST(req: NextRequest) {
       data: transactionsData.map(({ index: _index, ...rest }) => rest),
     })
 
-    const keywordCategorized = transactionsData.filter(t => t.categoryId).length - aiCategorized
-    const totalCategorized = keywordCategorized + aiCategorized
+    const totalCategorized = aiCategorized + keywordCategorized
     const uncategorizedCount = transactionsData.length - totalCategorized
 
     return NextResponse.json({
@@ -111,7 +115,7 @@ export async function POST(req: NextRequest) {
       keywordCategorized,
       aiCategorized,
       uncategorized: uncategorizedCount,
-      message: `${parsed.length} transacties geimporteerd (${keywordCategorized} via keywords, ${aiCategorized} via AI, ${uncategorizedCount} zonder categorie)`,
+      message: `${parsed.length} transacties geimporteerd (${aiCategorized} via AI, ${keywordCategorized} via keywords, ${uncategorizedCount} zonder categorie)`,
     })
   } catch (error) {
     console.error('Upload error:', error)
