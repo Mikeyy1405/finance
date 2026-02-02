@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Badge } from '@/components/ui/badge'
 import { Plus, Pencil, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -72,65 +71,68 @@ export default function CategoriesPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Categorieen</h1>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Categorieen</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Organiseer je transacties</p>
+        </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={openAdd}><Plus className="h-4 w-4 mr-2" />Toevoegen</Button>
+            <Button onClick={openAdd} className="rounded-xl h-10 shadow-md shadow-primary/20"><Plus className="h-4 w-4 mr-2" />Toevoegen</Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="rounded-2xl">
             <DialogHeader>
-              <DialogTitle>{editId ? 'Categorie bewerken' : 'Nieuwe categorie'}</DialogTitle>
+              <DialogTitle className="text-lg font-semibold tracking-tight">{editId ? 'Categorie bewerken' : 'Nieuwe categorie'}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <Label>Naam</Label>
-                <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required />
+              <div className="space-y-2">
+                <Label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Naam</Label>
+                <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required className="h-10 rounded-xl" />
               </div>
               <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <Label>Type</Label>
+                <div className="space-y-2">
+                  <Label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Type</Label>
                   <Select value={form.type} onValueChange={v => setForm(f => ({ ...f, type: v }))}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="h-10 rounded-xl"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="expense">Uitgave</SelectItem>
                       <SelectItem value="income">Inkomst</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-                <div>
-                  <Label>Icoon</Label>
-                  <Input value={form.icon} onChange={e => setForm(f => ({ ...f, icon: e.target.value }))} placeholder="Emoji" />
+                <div className="space-y-2">
+                  <Label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Icoon</Label>
+                  <Input value={form.icon} onChange={e => setForm(f => ({ ...f, icon: e.target.value }))} placeholder="Emoji" className="h-10 rounded-xl" />
                 </div>
-                <div>
-                  <Label>Kleur</Label>
-                  <Input type="color" value={form.color} onChange={e => setForm(f => ({ ...f, color: e.target.value }))} />
+                <div className="space-y-2">
+                  <Label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Kleur</Label>
+                  <Input type="color" value={form.color} onChange={e => setForm(f => ({ ...f, color: e.target.value }))} className="h-10 rounded-xl" />
                 </div>
               </div>
-              <div>
-                <Label>Keywords (voor auto-categorisatie, kommagescheiden)</Label>
-                <Input value={form.keywords} onChange={e => setForm(f => ({ ...f, keywords: e.target.value }))} placeholder="albert heijn,jumbo,lidl" />
+              <div className="space-y-2">
+                <Label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Keywords (auto-categorisatie, kommagescheiden)</Label>
+                <Input value={form.keywords} onChange={e => setForm(f => ({ ...f, keywords: e.target.value }))} placeholder="albert heijn,jumbo,lidl" className="h-10 rounded-xl" />
               </div>
-              <Button type="submit" className="w-full">{editId ? 'Opslaan' : 'Toevoegen'}</Button>
+              <Button type="submit" className="w-full h-11 rounded-xl font-semibold shadow-md shadow-primary/20">{editId ? 'Opslaan' : 'Toevoegen'}</Button>
             </form>
           </DialogContent>
         </Dialog>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Uitgaven ({expenseCategories.length})</CardTitle>
+      <Card className="premium-shadow border-border/50">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold tracking-tight">Uitgaven ({expenseCategories.length})</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {expenseCategories.map(c => (
-              <div key={c.id} className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full" style={{ backgroundColor: c.color || '#94a3b8' }} />
+              <div key={c.id} className="flex items-center justify-between p-3.5 border border-border/50 rounded-xl hover:bg-muted/30 transition-colors">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-3 h-3 rounded-full ring-2 ring-offset-2 ring-offset-background" style={{ backgroundColor: c.color || '#94a3b8', ringColor: c.color || '#94a3b8' }} />
                   <span className="text-sm font-medium">{c.icon} {c.name}</span>
                 </div>
-                <div className="flex gap-1">
-                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(c)}><Pencil className="h-3 w-3" /></Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleDelete(c.id)}><Trash2 className="h-3 w-3" /></Button>
+                <div className="flex gap-0.5">
+                  <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg" onClick={() => openEdit(c)}><Pencil className="h-3 w-3" /></Button>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg hover:text-destructive" onClick={() => handleDelete(c.id)}><Trash2 className="h-3 w-3" /></Button>
                 </div>
               </div>
             ))}
@@ -138,21 +140,21 @@ export default function CategoriesPage() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Inkomsten ({incomeCategories.length})</CardTitle>
+      <Card className="premium-shadow border-border/50">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold tracking-tight">Inkomsten ({incomeCategories.length})</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {incomeCategories.map(c => (
-              <div key={c.id} className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full" style={{ backgroundColor: c.color || '#94a3b8' }} />
+              <div key={c.id} className="flex items-center justify-between p-3.5 border border-border/50 rounded-xl hover:bg-muted/30 transition-colors">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-3 h-3 rounded-full ring-2 ring-offset-2 ring-offset-background" style={{ backgroundColor: c.color || '#94a3b8', ringColor: c.color || '#94a3b8' }} />
                   <span className="text-sm font-medium">{c.icon} {c.name}</span>
                 </div>
-                <div className="flex gap-1">
-                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(c)}><Pencil className="h-3 w-3" /></Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleDelete(c.id)}><Trash2 className="h-3 w-3" /></Button>
+                <div className="flex gap-0.5">
+                  <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg" onClick={() => openEdit(c)}><Pencil className="h-3 w-3" /></Button>
+                  <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg hover:text-destructive" onClick={() => handleDelete(c.id)}><Trash2 className="h-3 w-3" /></Button>
                 </div>
               </div>
             ))}
@@ -160,11 +162,11 @@ export default function CategoriesPage() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Over auto-categorisatie</CardTitle>
+      <Card className="premium-shadow border-border/50">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold tracking-tight">Over auto-categorisatie</CardTitle>
         </CardHeader>
-        <CardContent className="text-sm text-muted-foreground">
+        <CardContent className="text-sm text-muted-foreground leading-relaxed">
           <p>
             Wanneer je een bankafschrift uploadt, worden transacties automatisch gecategoriseerd op basis van de keywords die je per categorie hebt ingesteld.
             Voeg relevante zoektermen toe (bijv. &quot;albert heijn,jumbo&quot; voor Boodschappen) zodat transacties automatisch de juiste categorie krijgen.
