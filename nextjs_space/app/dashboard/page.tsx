@@ -4,11 +4,12 @@ import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { formatCurrency, getMonthName } from '@/lib/utils'
-import { TrendingUp, TrendingDown, Wallet, ArrowUpDown } from 'lucide-react'
+import { TrendingUp, TrendingDown, Wallet, ArrowUpDown, ArrowRightLeft } from 'lucide-react'
 
 interface DashboardData {
   totalIncome: number
   totalExpenses: number
+  totalTransfers: number
   balance: number
   categoryBreakdown: Array<{
     categoryId: string | null
@@ -24,7 +25,7 @@ interface DashboardData {
     type: string
     category: { name: string; icon: string | null; color: string | null } | null
   }>
-  trend: Array<{ month: number; year: number; income: number; expenses: number }>
+  trend: Array<{ month: number; year: number; income: number; expenses: number; transfers: number }>
   budgetStatus: Array<{
     id: string
     amount: number
@@ -38,8 +39,8 @@ interface DashboardData {
 const summaryCards = [
   { key: 'income', label: 'Inkomsten', icon: TrendingUp, color: 'emerald', gradient: 'from-emerald-500 to-teal-600' },
   { key: 'expenses', label: 'Uitgaven', icon: TrendingDown, color: 'red', gradient: 'from-red-500 to-rose-600' },
+  { key: 'transfers', label: 'Overboekingen', icon: ArrowRightLeft, color: 'amber', gradient: 'from-amber-500 to-orange-600' },
   { key: 'balance', label: 'Balans', icon: Wallet, color: 'blue', gradient: 'from-blue-500 to-indigo-600' },
-  { key: 'transactions', label: 'Transacties', icon: ArrowUpDown, color: 'violet', gradient: 'from-violet-500 to-purple-600' },
 ] as const
 
 export default function DashboardPage() {
@@ -59,8 +60,8 @@ export default function DashboardPage() {
     switch (key) {
       case 'income': return formatCurrency(data.totalIncome)
       case 'expenses': return formatCurrency(data.totalExpenses)
+      case 'transfers': return formatCurrency(data.totalTransfers)
       case 'balance': return formatCurrency(data.balance)
-      case 'transactions': return String(data.recentTransactions?.length || 0)
       default: return '0'
     }
   }
@@ -237,7 +238,7 @@ export default function DashboardPage() {
                         {t.category && ` · ${t.category.icon || ''} ${t.category.name}`}
                       </p>
                     </div>
-                    <span className={`text-sm font-semibold tabular-nums ml-3 ${t.type === 'income' ? 'text-emerald-600' : 'text-red-600'}`}>
+                    <span className={`text-sm font-semibold tabular-nums ml-3 ${t.type === 'income' ? 'text-emerald-600' : t.type === 'transfer' ? 'text-amber-600' : 'text-red-600'}`}>
                       {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
                     </span>
                   </div>

@@ -22,8 +22,14 @@ export async function GET(req: NextRequest) {
       _sum: { amount: true },
     })
 
+    const transferAgg = await prisma.transaction.aggregate({
+      where: { userId: user.id, type: 'transfer', date: { gte: start, lt: end } },
+      _sum: { amount: true },
+    })
+
     const totalIncome = incomeAgg._sum.amount || 0
     const totalExpenses = expenseAgg._sum.amount || 0
+    const totalTransfers = transferAgg._sum.amount || 0
 
     // Spending by category
     const byCategory = await prisma.transaction.groupBy({
@@ -68,11 +74,16 @@ export async function GET(req: NextRequest) {
         where: { userId: user.id, type: 'expense', date: { gte: m, lt: mEnd } },
         _sum: { amount: true },
       })
+      const trf = await prisma.transaction.aggregate({
+        where: { userId: user.id, type: 'transfer', date: { gte: m, lt: mEnd } },
+        _sum: { amount: true },
+      })
       trend.push({
         month: m.getMonth() + 1,
         year: m.getFullYear(),
         income: inc._sum.amount || 0,
         expenses: exp._sum.amount || 0,
+        transfers: trf._sum.amount || 0,
       })
     }
 
@@ -89,7 +100,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       totalIncome,
       totalExpenses,
-      balance: totalIncome - totalExpenses,
+      totalTransfers,
+      balance: totalIncome - totalExpenses - totalTransfers,
       categoryBreakdown,
       recentTransactions,
       trend,

@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { formatCurrency, getMonthName } from '@/lib/utils'
-import { Plus, Pencil, Trash2, RefreshCw, TrendingUp, TrendingDown, ShoppingCart } from 'lucide-react'
+import { Plus, Pencil, Trash2, RefreshCw, TrendingUp, TrendingDown, ShoppingCart, ArrowRightLeft } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface Category {
@@ -23,7 +23,7 @@ interface BudgetItem {
   id: string; amount: number; categoryId: string; category: Category; spent: number; remaining: number
 }
 
-type TabType = 'overview' | 'income' | 'expense'
+type TabType = 'overview' | 'income' | 'expense' | 'transfer'
 
 export default function TransactionsPage() {
   const now = new Date()
@@ -124,9 +124,11 @@ export default function TransactionsPage() {
   const searchFiltered = transactions.filter(t => !search || t.description.toLowerCase().includes(search.toLowerCase()))
   const incomeTransactions = searchFiltered.filter(t => t.type === 'income')
   const expenseTransactions = searchFiltered.filter(t => t.type === 'expense')
+  const transferTransactions = searchFiltered.filter(t => t.type === 'transfer')
 
   const totalIncome = incomeTransactions.reduce((s, t) => s + t.amount, 0)
   const totalExpense = expenseTransactions.reduce((s, t) => s + t.amount, 0)
+  const totalTransfer = transferTransactions.reduce((s, t) => s + t.amount, 0)
 
   // Group expenses by category for subtotals
   const expenseByCategory = useMemo(() => {
@@ -168,6 +170,7 @@ export default function TransactionsPage() {
   const tabs: { key: TabType; label: string }[] = [
     { key: 'overview', label: 'Overzicht' },
     { key: 'expense', label: `Uitgaven (${expenseTransactions.length})` },
+    { key: 'transfer', label: `Overboekingen (${transferTransactions.length})` },
     { key: 'income', label: `Inkomsten (${incomeTransactions.length})` },
   ]
 
@@ -194,7 +197,7 @@ export default function TransactionsPage() {
               <TableCell className="text-sm hidden sm:table-cell">
                 {t.category ? `${t.category.icon || ''} ${t.category.name}` : <span className="text-muted-foreground">—</span>}
               </TableCell>
-              <TableCell className={`text-right font-semibold tabular-nums ${t.type === 'income' ? 'text-emerald-600' : 'text-red-600'}`}>
+              <TableCell className={`text-right font-semibold tabular-nums ${t.type === 'income' ? 'text-emerald-600' : t.type === 'transfer' ? 'text-amber-600' : 'text-red-600'}`}>
                 {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
               </TableCell>
               <TableCell>
@@ -246,6 +249,7 @@ export default function TransactionsPage() {
                     <SelectContent>
                       <SelectItem value="expense">Uitgave</SelectItem>
                       <SelectItem value="income">Inkomst</SelectItem>
+                      <SelectItem value="transfer">Overboeking</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -337,17 +341,13 @@ export default function TransactionsPage() {
           </CardContent>
         </Card>
         <Card className="premium-shadow border-border/50 overflow-hidden relative group">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity duration-300" />
+          <div className="absolute inset-0 bg-gradient-to-br from-amber-500 to-orange-600 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity duration-300" />
           <CardContent className="p-4 relative">
             <div className="flex items-center gap-2 mb-1">
-              <div className="h-4 w-4 rounded-full bg-blue-600 flex items-center justify-center">
-                <span className="text-[8px] text-white font-bold">=</span>
-              </div>
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Balans</p>
+              <ArrowRightLeft className="h-4 w-4 text-amber-600" />
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Overboekingen</p>
             </div>
-            <p className={`text-xl font-bold tabular-nums ${totalIncome - totalExpense >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-              {totalIncome - totalExpense >= 0 ? '+' : ''}{formatCurrency(totalIncome - totalExpense)}
-            </p>
+            <p className="text-xl font-bold text-amber-600 tabular-nums">{formatCurrency(totalTransfer)}</p>
           </CardContent>
         </Card>
       </div>
@@ -513,6 +513,23 @@ export default function TransactionsPage() {
           </CardHeader>
           <CardContent className="overflow-x-auto">
             {renderTransactionTable(expenseTransactions)}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* TRANSFER TAB */}
+      {activeTab === 'transfer' && (
+        <Card className="premium-shadow border-border/50">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base font-semibold tracking-tight flex items-center gap-2">
+                <ArrowRightLeft className="h-4 w-4 text-amber-500" />
+                {transferTransactions.length} overboekingen — {formatCurrency(totalTransfer)}
+              </CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="overflow-x-auto">
+            {renderTransactionTable(transferTransactions)}
           </CardContent>
         </Card>
       )}
