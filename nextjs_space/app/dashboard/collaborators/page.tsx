@@ -67,7 +67,11 @@ export default function CollaboratorsPage() {
         return
       }
 
-      setSuccess(`${email} heeft nu toegang tot je administratie`)
+      if (data.newUserCreated) {
+        setSuccess(`Er is een nieuw account aangemaakt voor ${email}. Deze persoon kan inloggen via "Wachtwoord vergeten" om een eigen wachtwoord in te stellen, en heeft nu toegang tot je administratie.`)
+      } else {
+        setSuccess(`${email} heeft nu toegang tot je administratie`)
+      }
       setEmail('')
       setPassword('')
       fetchCollaborators()

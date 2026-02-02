@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import { requireAuth, verifyPassword } from '@/lib/auth'
+import { requireAuth, verifyPassword, hashPassword } from '@/lib/auth'
+import { defaultCategories } from '@/lib/categories-seed'
+import crypto from 'crypto'
 
 // GET: list collaborators for the current user (people I share with)
 export async function GET() {
@@ -46,10 +48,31 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Ongeldig wachtwoord' }, { status: 403 })
     }
 
-    // Find the collaborator user by email
-    const collaboratorUser = await prisma.user.findUnique({ where: { email } })
+    // Find the collaborator user by email, or create a new account
+    let collaboratorUser = await prisma.user.findUnique({ where: { email } })
+    let newUserCreated = false
+
     if (!collaboratorUser) {
-      return NextResponse.json({ error: 'Geen gebruiker gevonden met dit emailadres' }, { status: 404 })
+      // Auto-register the collaborator with a random password
+      const tempPassword = crypto.randomBytes(16).toString('hex')
+      const passwordHash = await hashPassword(tempPassword)
+      collaboratorUser = await prisma.user.create({
+        data: { email, passwordHash },
+      })
+
+      // Seed default categories for the new user
+      await prisma.category.createMany({
+        data: defaultCategories.map(c => ({
+          name: c.name,
+          type: c.type,
+          icon: c.icon,
+          color: c.color,
+          keywords: c.keywords,
+          userId: collaboratorUser.id,
+        })),
+      })
+
+      newUserCreated = true
     }
 
     if (collaboratorUser.id === user.id) {
@@ -69,7 +92,7 @@ export async function POST(req: NextRequest) {
       include: { collaborator: { select: { id: true, email: true, name: true } } },
     })
 
-    return NextResponse.json(collaborator)
+    return NextResponse.json({ ...collaborator, newUserCreated })
   } catch (error: unknown) {
     if (error instanceof Error && error.message === 'Unauthorized') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
