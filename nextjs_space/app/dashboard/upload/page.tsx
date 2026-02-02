@@ -73,12 +73,12 @@ export default function UploadPage() {
             <div className="mx-auto h-14 w-14 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-teal-600/10 flex items-center justify-center mb-5">
               <Upload className="h-7 w-7 text-primary/60" />
             </div>
-            <p className="text-lg font-semibold tracking-tight mb-1.5">Sleep je CSV-bestand hierheen</p>
+            <p className="text-lg font-semibold tracking-tight mb-1.5">Sleep je CSV- of PDF-bestand hierheen</p>
             <p className="text-sm text-muted-foreground mb-5">of klik om een bestand te selecteren</p>
             <input
               ref={fileRef}
               type="file"
-              accept=".csv"
+              accept=".csv,.pdf"
               onChange={handleFileChange}
               className="hidden"
             />
@@ -145,12 +145,13 @@ export default function UploadPage() {
           <CardTitle className="text-base font-semibold tracking-tight">Ondersteunde formaten</CardTitle>
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground space-y-3 leading-relaxed">
-          <p>Upload een CSV-bestand van je bank. De volgende banken/formaten worden ondersteund:</p>
+          <p>Upload een CSV- of PDF-bestand van je bank. De volgende banken/formaten worden ondersteund:</p>
           <ul className="list-disc list-inside space-y-1.5 ml-1">
             <li><strong className="text-foreground">ING</strong> - Download via Mijn ING &gt; Af- en bijschrijvingen &gt; Downloaden</li>
             <li><strong className="text-foreground">ABN AMRO</strong> - Download via Internet Bankieren &gt; Mutaties &gt; Downloaden</li>
             <li><strong className="text-foreground">Rabobank</strong> - Download via Rabo Online &gt; Transacties &gt; Exporteren</li>
             <li><strong className="text-foreground">SNS / ASN / RegioBank</strong> - Download als CSV via je online bankieren</li>
+            <li><strong className="text-foreground">PDF-afschriften</strong> - Upload een bankafschrift als PDF (datum, omschrijving en bedrag worden automatisch herkend)</li>
             <li><strong className="text-foreground">Overig</strong> - Elk CSV-bestand met datum, omschrijving en bedrag kolommen</li>
           </ul>
           <p className="pt-1">

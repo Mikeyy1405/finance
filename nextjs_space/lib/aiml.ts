@@ -1,11 +1,16 @@
 const AIML_API_URL = 'https://api.aimlapi.com/v1/chat/completions'
 
+// Use Claude Sonnet 4.5 for categorization (fast + accurate)
+// Use Claude Sonnet 4.5 for analysis too
+const CATEGORIZE_MODEL = 'claude-sonnet-4-5'
+const ANALYSIS_MODEL = 'claude-sonnet-4-5'
+
 interface AimlMessage {
   role: 'system' | 'user' | 'assistant'
   content: string
 }
 
-export async function aimlChat(messages: AimlMessage[], temperature = 0.3): Promise<string> {
+export async function aimlChat(messages: AimlMessage[], temperature = 0.3, model?: string): Promise<string> {
   const apiKey = process.env.AIML_API_KEY
   if (!apiKey) throw new Error('AIML_API_KEY is niet geconfigureerd')
 
@@ -16,7 +21,7 @@ export async function aimlChat(messages: AimlMessage[], temperature = 0.3): Prom
       'Authorization': `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: 'gpt-4o-mini',
+      model: model || CATEGORIZE_MODEL,
       messages,
       temperature,
       max_tokens: 4096,
@@ -58,21 +63,29 @@ export async function aiCategorizeTransactions(
   const expenseCats = categories.filter(c => c.type === 'expense').map(c => `${c.id}: ${c.name}`)
   const incomeCats = categories.filter(c => c.type === 'income').map(c => `${c.id}: ${c.name}`)
 
-  // Process in batches of 50
-  const batchSize = 50
+  // Process in batches of 30 (smaller batches = more accurate with complex model)
+  const batchSize = 30
   const result: Record<number, string> = {}
 
   for (let i = 0; i < transactions.length; i += batchSize) {
     const batch = transactions.slice(i, i + batchSize)
 
     const transactionLines = batch.map(t =>
-      `${t.index}|${t.type}|${t.amount}|${t.description}`
+      `${t.index}|${t.type}|€${t.amount.toFixed(2)}|${t.description}`
     ).join('\n')
 
     const response = await aimlChat([
       {
         role: 'system',
-        content: `Je bent een Nederlandse financiele assistent die banktransacties categoriseert.
+        content: `Je bent een expert in het categoriseren van Nederlandse banktransacties. Je herkent alle Nederlandse banken, winkels, bedrijven en diensten.
+
+BELANGRIJK: Nederlandse bankafschriften bevatten vaak cryptische omschrijvingen zoals:
+- "NL12INGB0001234567 AH to Go" → Boodschappen (Albert Heijn)
+- "CCV*Thuisbezorgd.nl" → Uit eten
+- "SEPA Overboeking Vattenfall" → Energie
+- "iDEAL Bol.com" → kan Huishouden, Kleding, of Cadeaus zijn (kijk naar bedrag)
+- "Betaalautomaat 12:34 Shell" → Transport
+- IBANs, kaartnummers en locatiecodes moeten genegeerd worden
 
 Beschikbare UITGAVEN categorieen:
 ${expenseCats.join('\n')}
@@ -80,23 +93,26 @@ ${expenseCats.join('\n')}
 Beschikbare INKOMSTEN categorieen:
 ${incomeCats.join('\n')}
 
-Je krijgt transacties in het formaat: index|type|bedrag|omschrijving
-Geef per transactie ALLEEN de index en het categorie-ID terug, gescheiden door |, één per regel.
-Als je het niet zeker weet, geef dan de meest waarschijnlijke categorie.
-Geef ALLEEN de output, geen uitleg.`
+REGELS:
+1. Kijk naar de KERN van de omschrijving (bedrijfsnaam, dienst) en negeer IBAN-nummers, kaartnummers, datums, locaties
+2. Bij twijfel: gebruik het bedrag als hint (€10-50 bij supermarkt = Boodschappen, €800+ maandelijks = Huur/Hypotheek of Salaris)
+3. ELKE transactie MOET een categorie krijgen - gebruik "Overig" alleen als het echt niet te bepalen is
+4. Geef per transactie ALLEEN: index|categorie-ID
+5. Geen uitleg, geen extra tekst, alleen de regels met index|categorie-ID`
       },
       {
         role: 'user',
-        content: transactionLines,
+        content: `Categoriseer deze transacties:\n${transactionLines}`,
       }
-    ])
+    ], 0.1, CATEGORIZE_MODEL)
 
-    // Parse response
+    // Parse response - handle various formats the model might return
     const lines = response.trim().split('\n')
     for (const line of lines) {
-      const parts = line.trim().split('|')
+      const cleaned = line.trim().replace(/^[\s-*]+/, '')
+      const parts = cleaned.split('|')
       if (parts.length >= 2) {
-        const idx = parseInt(parts[0])
+        const idx = parseInt(parts[0].trim())
         const catId = parts[1].trim()
         if (!isNaN(idx) && catId && categories.some(c => c.id === catId)) {
           result[idx] = catId
@@ -161,5 +177,5 @@ Wees specifiek, gebruik de daadwerkelijke bedragen en categorieen. Geef praktisc
       content: 'Je bent een ervaren Nederlandse financieel adviseur. Je analyseert persoonlijke financien en geeft helder, concreet en motiverend advies. Gebruik markdown formatting voor structuur.',
     },
     { role: 'user', content: prompt },
-  ], 0.5)
+  ], 0.5, ANALYSIS_MODEL)
 }
