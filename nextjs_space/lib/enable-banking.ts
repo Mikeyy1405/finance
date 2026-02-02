@@ -126,10 +126,10 @@ export async function getTransactions(
       booking_date?: string
       value_date?: string
       transaction_date?: string
-      debtor_name?: string
-      creditor_name?: string
+      debtor?: { name?: string }
+      creditor?: { name?: string }
       remittance_information?: string[]
-      balance_after_transaction?: { balance_amount: { amount: string } }
+      balance_after_transaction?: { amount: string; currency: string }
     }>
     continuation_key?: string
   }>
@@ -137,7 +137,7 @@ export async function getTransactions(
 
 // List available banks for a country
 export async function listBanks(country = 'NL') {
-  return apiRequest('GET', `/aspsps?country=${country}`) as Promise<
-    Array<{ name: string; country: string; logo?: string }>
-  >
+  return apiRequest('GET', `/aspsps?country=${country}`) as Promise<{
+    aspsps: Array<{ name: string; country: string; logo?: string; psu_types: string[] }>
+  }>
 }

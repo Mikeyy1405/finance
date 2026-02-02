@@ -54,8 +54,8 @@ export async function POST(req: NextRequest) {
       booking_date?: string
       value_date?: string
       transaction_date?: string
-      creditor_name?: string
-      debtor_name?: string
+      creditor?: { name?: string }
+      debtor?: { name?: string }
       remittance_information?: string[]
     }> = []
 
@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
       const isCredit = t.credit_debit_indicator === 'CRDT'
       const amount = Math.abs(parseFloat(t.transaction_amount.amount))
       const description = [
-        t.creditor_name || t.debtor_name || '',
+        t.creditor?.name || t.debtor?.name || '',
         ...(t.remittance_information || []),
       ].filter(Boolean).join(' - ') || 'Onbekende transactie'
 
