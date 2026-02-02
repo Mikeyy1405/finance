@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { formatCurrency, getMonthName } from '@/lib/utils'
-import { TrendingUp, TrendingDown, Wallet, ArrowUpDown, ArrowRightLeft } from 'lucide-react'
+import { TrendingUp, TrendingDown, Wallet, ArrowUpDown, ArrowRightLeft, ChevronDown } from 'lucide-react'
 
 interface DashboardData {
   totalIncome: number
@@ -48,12 +48,39 @@ export default function DashboardPage() {
   const [month, setMonth] = useState(now.getMonth() + 1)
   const [year, setYear] = useState(now.getFullYear())
   const [data, setData] = useState<DashboardData | null>(null)
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null)
+  const [categoryTransactions, setCategoryTransactions] = useState<Record<string, Array<{
+    id: string; date: string; description: string; amount: number
+  }>>>({})
+  const [loadingCategory, setLoadingCategory] = useState<string | null>(null)
 
   useEffect(() => {
     fetch(`/api/dashboard?month=${month}&year=${year}`)
       .then(r => r.json())
       .then(setData)
+    setExpandedCategory(null)
+    setCategoryTransactions({})
   }, [month, year])
+
+  function toggleCategory(categoryId: string | null) {
+    const key = categoryId || '__none__'
+    if (expandedCategory === key) {
+      setExpandedCategory(null)
+      return
+    }
+    setExpandedCategory(key)
+    if (categoryTransactions[key]) return
+    setLoadingCategory(key)
+    const params = new URLSearchParams({ month: String(month), year: String(year), type: 'expense' })
+    if (categoryId) params.set('categoryId', categoryId)
+    else params.set('categoryId', 'none')
+    fetch(`/api/transactions?${params}`)
+      .then(r => r.json())
+      .then((txs: Array<{ id: string; date: string; description: string; amount: number }>) => {
+        setCategoryTransactions(prev => ({ ...prev, [key]: txs }))
+      })
+      .finally(() => setLoadingCategory(null))
+  }
 
   function getValue(key: string) {
     if (!data) return '...'
@@ -128,21 +155,56 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             {data?.categoryBreakdown && data.categoryBreakdown.length > 0 ? (
-              <div className="space-y-4">
+              <div className="space-y-1">
                 {data.categoryBreakdown.map((item, i) => {
                   const pct = data.totalExpenses > 0 ? (item.total / data.totalExpenses) * 100 : 0
+                  const key = item.categoryId || '__none__'
+                  const isExpanded = expandedCategory === key
+                  const txs = categoryTransactions[key]
+                  const isLoading = loadingCategory === key
                   return (
                     <div key={i}>
-                      <div className="flex justify-between text-sm mb-1.5">
-                        <span className="font-medium">{item.category?.icon} {item.category?.name || 'Zonder categorie'}</span>
-                        <span className="font-semibold tabular-nums">{formatCurrency(item.total)}</span>
-                      </div>
-                      <div className="h-2 bg-muted rounded-full overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-all duration-500 ease-out"
-                          style={{ width: `${pct}%`, backgroundColor: item.category?.color || '#94a3b8' }}
-                        />
-                      </div>
+                      <button
+                        onClick={() => toggleCategory(item.categoryId)}
+                        className="w-full text-left py-2 px-2 -mx-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
+                      >
+                        <div className="flex justify-between text-sm mb-1.5">
+                          <span className="font-medium flex items-center gap-1">
+                            {item.category?.icon} {item.category?.name || 'Zonder categorie'}
+                            <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
+                          </span>
+                          <span className="font-semibold tabular-nums">{formatCurrency(item.total)}</span>
+                        </div>
+                        <div className="h-2 bg-muted rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full transition-all duration-500 ease-out"
+                            style={{ width: `${pct}%`, backgroundColor: item.category?.color || '#94a3b8' }}
+                          />
+                        </div>
+                      </button>
+                      {isExpanded && (
+                        <div className="ml-4 mr-1 mb-2 mt-1 border-l-2 pl-3" style={{ borderColor: item.category?.color || '#94a3b8' }}>
+                          {isLoading ? (
+                            <p className="text-xs text-muted-foreground py-2">Laden...</p>
+                          ) : txs && txs.length > 0 ? (
+                            <div className="space-y-0.5">
+                              {txs.map(tx => (
+                                <div key={tx.id} className="flex items-center justify-between py-1.5 text-sm">
+                                  <div className="min-w-0 flex-1">
+                                    <p className="truncate text-xs">{tx.description}</p>
+                                    <p className="text-[11px] text-muted-foreground">{new Date(tx.date).toLocaleDateString('nl-NL')}</p>
+                                  </div>
+                                  <span className="text-xs font-semibold tabular-nums text-red-600 ml-2 shrink-0">
+                                    -{formatCurrency(tx.amount)}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-xs text-muted-foreground py-2">Geen transacties</p>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )
                 })}
