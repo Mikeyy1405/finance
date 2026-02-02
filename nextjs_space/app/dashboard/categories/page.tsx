@@ -127,7 +127,7 @@ export default function CategoriesPage() {
             {expenseCategories.map(c => (
               <div key={c.id} className="flex items-center justify-between p-3.5 border border-border/50 rounded-xl hover:bg-muted/30 transition-colors">
                 <div className="flex items-center gap-2.5">
-                  <span className="w-3 h-3 rounded-full ring-2 ring-offset-2 ring-offset-background" style={{ backgroundColor: c.color || '#94a3b8', ringColor: c.color || '#94a3b8' }} />
+                  <span className="w-3 h-3 rounded-full ring-2 ring-offset-2 ring-offset-background" style={{ backgroundColor: c.color || '#94a3b8', '--tw-ring-color': c.color || '#94a3b8' } as React.CSSProperties} />
                   <span className="text-sm font-medium">{c.icon} {c.name}</span>
                 </div>
                 <div className="flex gap-0.5">
@@ -149,7 +149,7 @@ export default function CategoriesPage() {
             {incomeCategories.map(c => (
               <div key={c.id} className="flex items-center justify-between p-3.5 border border-border/50 rounded-xl hover:bg-muted/30 transition-colors">
                 <div className="flex items-center gap-2.5">
-                  <span className="w-3 h-3 rounded-full ring-2 ring-offset-2 ring-offset-background" style={{ backgroundColor: c.color || '#94a3b8', ringColor: c.color || '#94a3b8' }} />
+                  <span className="w-3 h-3 rounded-full ring-2 ring-offset-2 ring-offset-background" style={{ backgroundColor: c.color || '#94a3b8', '--tw-ring-color': c.color || '#94a3b8' } as React.CSSProperties} />
                   <span className="text-sm font-medium">{c.icon} {c.name}</span>
                 </div>
                 <div className="flex gap-0.5">
