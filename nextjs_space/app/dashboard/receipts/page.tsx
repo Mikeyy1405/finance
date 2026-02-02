@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Camera, Receipt, CheckCircle2, AlertCircle, ShoppingBag, Calendar, Tag, Loader2, Image as ImageIcon } from 'lucide-react'
+import { Camera, Receipt, CheckCircle2, AlertCircle, ShoppingBag, Calendar, Tag, Loader2, Image as ImageIcon, Link2, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface ReceiptItem {
@@ -12,14 +12,24 @@ interface ReceiptItem {
   price: number
 }
 
+interface MatchingTransaction {
+  id: string
+  date: string
+  description: string
+  amount: number
+  category: { name: string; icon: string | null } | null
+  notes: string | null
+}
+
 interface ReceiptResult {
   receiptId: string
-  transactionId: string
   storeName: string
   date: string | null
   totalAmount: number
   items: ReceiptItem[]
   category: string
+  categoryId: string | null
+  matchingTransactions: MatchingTransaction[]
   message: string
 }
 
@@ -41,7 +51,9 @@ interface HistoryReceipt {
 
 export default function ReceiptsPage() {
   const [uploading, setUploading] = useState(false)
+  const [linking, setLinking] = useState(false)
   const [result, setResult] = useState<ReceiptResult | null>(null)
+  const [linked, setLinked] = useState<{ transactionId: string; message: string } | null>(null)
   const [error, setError] = useState('')
   const [preview, setPreview] = useState<string | null>(null)
   const [history, setHistory] = useState<HistoryReceipt[]>([])
@@ -69,6 +81,7 @@ export default function ReceiptsPage() {
     setUploading(true)
     setError('')
     setResult(null)
+    setLinked(null)
 
     // Show preview
     const reader = new FileReader()
@@ -87,12 +100,59 @@ export default function ReceiptsPage() {
       } else {
         setResult(data)
         toast.success(data.message)
-        if (showHistory) loadHistory()
       }
     } catch {
       setError('Er is iets misgegaan bij het uploaden')
     } finally {
       setUploading(false)
+    }
+  }
+
+  async function handleLinkTransaction(transactionId: string) {
+    if (!result) return
+    setLinking(true)
+    try {
+      const res = await fetch('/api/receipt', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ receiptId: result.receiptId, transactionId }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        toast.error(data.error)
+      } else {
+        setLinked(data)
+        toast.success(data.message)
+        if (showHistory) loadHistory()
+      }
+    } catch {
+      toast.error('Er is iets misgegaan bij het koppelen')
+    } finally {
+      setLinking(false)
+    }
+  }
+
+  async function handleCreateNew() {
+    if (!result) return
+    setLinking(true)
+    try {
+      const res = await fetch('/api/receipt', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ receiptId: result.receiptId, createNew: true, categoryId: result.categoryId }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        toast.error(data.error)
+      } else {
+        setLinked(data)
+        toast.success(data.message)
+        if (showHistory) loadHistory()
+      }
+    } catch {
+      toast.error('Er is iets misgegaan')
+    } finally {
+      setLinking(false)
     }
   }
 
@@ -110,6 +170,7 @@ export default function ReceiptsPage() {
 
   function handleReset() {
     setResult(null)
+    setLinked(null)
     setError('')
     setPreview(null)
     if (fileRef.current) fileRef.current.value = ''
@@ -119,7 +180,7 @@ export default function ReceiptsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Bonnetjes scannen</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">Upload een foto van je bonnetje en AI leest het automatisch</p>
+        <p className="text-sm text-muted-foreground mt-0.5">Upload een foto van je bonnetje en koppel het aan een banktransactie</p>
       </div>
 
       <Card className="premium-shadow border-border/50">
@@ -180,63 +241,64 @@ export default function ReceiptsPage() {
         </CardContent>
       </Card>
 
-      {result && (
-        <Card className="border-emerald-200/60 bg-emerald-50/50 dark:bg-emerald-950/20 dark:border-emerald-900/40 premium-shadow">
+      {/* Receipt scan result */}
+      {result && !linked && (
+        <Card className="border-blue-200/60 bg-blue-50/50 dark:bg-blue-950/20 dark:border-blue-900/40 premium-shadow">
           <CardContent className="p-5 md:p-6">
             <div className="flex items-start gap-3">
-              <div className="h-9 w-9 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
-                <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+              <div className="h-9 w-9 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0">
+                <Receipt className="h-5 w-5 text-blue-600" />
               </div>
               <div className="flex-1">
-                <p className="font-semibold text-emerald-800 dark:text-emerald-200">Bonnetje verwerkt</p>
-                <p className="text-sm text-emerald-700 dark:text-emerald-300 mt-0.5">{result.message}</p>
+                <p className="font-semibold text-blue-800 dark:text-blue-200">Bonnetje gescand</p>
+                <p className="text-sm text-blue-700 dark:text-blue-300 mt-0.5">{result.message}</p>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                   <div className="flex items-center gap-2">
-                    <ShoppingBag className="h-4 w-4 text-emerald-600" />
+                    <ShoppingBag className="h-4 w-4 text-blue-600" />
                     <div>
-                      <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-200">{result.storeName}</p>
-                      <p className="text-[11px] font-semibold uppercase tracking-wider text-emerald-600">Winkel</p>
+                      <p className="text-sm font-semibold text-blue-800 dark:text-blue-200">{result.storeName}</p>
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-blue-600">Winkel</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-emerald-600" />
+                    <Calendar className="h-4 w-4 text-blue-600" />
                     <div>
-                      <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-200">
+                      <p className="text-sm font-semibold text-blue-800 dark:text-blue-200">
                         {result.date ? new Date(result.date).toLocaleDateString('nl-NL') : 'Vandaag'}
                       </p>
-                      <p className="text-[11px] font-semibold uppercase tracking-wider text-emerald-600">Datum</p>
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-blue-600">Datum</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Receipt className="h-4 w-4 text-emerald-600" />
+                    <Receipt className="h-4 w-4 text-blue-600" />
                     <div>
-                      <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-200">
+                      <p className="text-sm font-semibold text-blue-800 dark:text-blue-200">
                         &euro;{result.totalAmount.toFixed(2)}
                       </p>
-                      <p className="text-[11px] font-semibold uppercase tracking-wider text-emerald-600">Totaal</p>
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-blue-600">Totaal</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Tag className="h-4 w-4 text-emerald-600" />
+                    <Tag className="h-4 w-4 text-blue-600" />
                     <div>
-                      <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-200">{result.category}</p>
-                      <p className="text-[11px] font-semibold uppercase tracking-wider text-emerald-600">Categorie</p>
+                      <p className="text-sm font-semibold text-blue-800 dark:text-blue-200">{result.category}</p>
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-blue-600">Categorie</p>
                     </div>
                   </div>
                 </div>
 
                 {result.items.length > 0 && (
-                  <div className="mt-4 border-t border-emerald-200/60 dark:border-emerald-800/40 pt-4">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-emerald-600 mb-2">Producten ({result.items.length})</p>
+                  <div className="mt-4 border-t border-blue-200/60 dark:border-blue-800/40 pt-4">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-blue-600 mb-2">Producten ({result.items.length})</p>
                     <div className="space-y-1.5 max-h-[200px] overflow-y-auto">
                       {result.items.map((item, i) => (
                         <div key={i} className="flex justify-between items-center text-sm">
-                          <span className="text-emerald-800 dark:text-emerald-200">
-                            {item.quantity > 1 && <span className="text-emerald-600">{item.quantity}x </span>}
+                          <span className="text-blue-800 dark:text-blue-200">
+                            {item.quantity > 1 && <span className="text-blue-600">{item.quantity}x </span>}
                             {item.name}
                           </span>
-                          <span className="font-medium text-emerald-800 dark:text-emerald-200 tabular-nums">
+                          <span className="font-medium text-blue-800 dark:text-blue-200 tabular-nums">
                             &euro;{item.price.toFixed(2)}
                           </span>
                         </div>
@@ -244,6 +306,96 @@ export default function ReceiptsPage() {
                     </div>
                   </div>
                 )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Matching transactions to link */}
+      {result && !linked && (
+        <Card className="premium-shadow border-border/50">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold tracking-tight flex items-center gap-2">
+              <Link2 className="h-4 w-4" />
+              Koppel aan een banktransactie
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            {result.matchingTransactions.length > 0 ? (
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground mb-3">
+                  De volgende transacties komen overeen met dit bonnetje. Kies de juiste om te koppelen:
+                </p>
+                {result.matchingTransactions.map(t => (
+                  <button
+                    key={t.id}
+                    disabled={linking}
+                    onClick={() => handleLinkTransaction(t.id)}
+                    className="w-full flex items-center justify-between p-3 rounded-xl bg-muted/50 hover:bg-primary/5 hover:border-primary/20 border border-transparent transition-all text-left disabled:opacity-50"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="h-9 w-9 rounded-lg bg-violet-500/10 flex items-center justify-center shrink-0">
+                        <Link2 className="h-4 w-4 text-violet-500" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium truncate">{t.description}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(t.date).toLocaleDateString('nl-NL')}
+                          {t.category && ` · ${t.category.icon || ''} ${t.category.name}`}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0 ml-3">
+                      <p className="text-sm font-semibold tabular-nums text-red-600">
+                        &euro;{t.amount.toFixed(2)}
+                      </p>
+                      {linking ? (
+                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                      ) : (
+                        <span className="text-xs text-primary font-medium">Koppelen</span>
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground py-4 text-center">
+                Geen overeenkomende banktransacties gevonden rondom {result.date ? new Date(result.date).toLocaleDateString('nl-NL') : 'vandaag'} voor &euro;{result.totalAmount.toFixed(2)}
+              </p>
+            )}
+
+            <div className="mt-4 pt-4 border-t border-border/50">
+              <Button
+                variant="outline"
+                size="sm"
+                className="rounded-xl w-full"
+                disabled={linking}
+                onClick={handleCreateNew}
+              >
+                {linking ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                ) : (
+                  <Plus className="h-4 w-4 mr-2" />
+                )}
+                Toch als nieuwe transactie toevoegen
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Successfully linked */}
+      {linked && (
+        <Card className="border-emerald-200/60 bg-emerald-50/50 dark:bg-emerald-950/20 dark:border-emerald-900/40 premium-shadow">
+          <CardContent className="p-5 md:p-6">
+            <div className="flex items-start gap-3">
+              <div className="h-9 w-9 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
+                <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+              </div>
+              <div>
+                <p className="font-semibold text-emerald-800 dark:text-emerald-200">Bonnetje gekoppeld</p>
+                <p className="text-sm text-emerald-700 dark:text-emerald-300 mt-0.5">{linked.message}</p>
               </div>
             </div>
           </CardContent>
@@ -309,6 +461,11 @@ export default function ReceiptsPage() {
                             {new Date(r.uploadedAt).toLocaleDateString('nl-NL')}
                             {items.length > 0 && ` · ${items.length} producten`}
                             {r.transaction?.category && ` · ${r.transaction.category.icon || ''} ${r.transaction.category.name}`}
+                            {r.transaction ? (
+                              <span className="text-emerald-600 ml-1">· Gekoppeld</span>
+                            ) : (
+                              <span className="text-amber-600 ml-1">· Niet gekoppeld</span>
+                            )}
                           </p>
                         </div>
                       </div>
@@ -332,12 +489,13 @@ export default function ReceiptsPage() {
           <ul className="list-disc list-inside space-y-1.5 ml-1">
             <li>Maak een <strong className="text-foreground">foto</strong> van je kassabon of bonnetje</li>
             <li>AI <strong className="text-foreground">leest automatisch</strong> de winkelnaam, datum, producten en totaalbedrag</li>
-            <li>De transactie wordt automatisch <strong className="text-foreground">gecategoriseerd</strong> op basis van de winkel</li>
-            <li>Alle producten worden opgeslagen in de <strong className="text-foreground">notities</strong> van de transactie</li>
-            <li>Je kunt de transactie achteraf altijd nog <strong className="text-foreground">aanpassen</strong> via het Transacties overzicht</li>
+            <li>Het systeem zoekt automatisch naar <strong className="text-foreground">overeenkomende banktransacties</strong> op basis van bedrag en datum</li>
+            <li>Kies de juiste transactie om het bonnetje aan te <strong className="text-foreground">koppelen</strong></li>
+            <li>De producten worden opgeslagen in de <strong className="text-foreground">notities</strong> van de transactie</li>
+            <li>Geen match? Je kunt het bonnetje ook als <strong className="text-foreground">nieuwe transactie</strong> toevoegen</li>
           </ul>
           <p className="pt-1">
-            <strong className="text-foreground">Tip:</strong> Zorg voor goede belichting en houd het bonnetje zo vlak mogelijk voor het beste resultaat.
+            <strong className="text-foreground">Tip:</strong> Upload je bankafschrift eerst via &quot;Upload&quot; zodat de transacties al in het systeem staan voordat je bonnetjes scant.
           </p>
         </CardContent>
       </Card>
