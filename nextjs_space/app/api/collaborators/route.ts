@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
           icon: c.icon,
           color: c.color,
           keywords: c.keywords,
-          userId: collaboratorUser.id,
+          userId: collaboratorUser!.id,
         })),
       })
 
