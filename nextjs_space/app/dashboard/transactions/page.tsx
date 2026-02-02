@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { formatCurrency, getMonthName } from '@/lib/utils'
-import { Plus, Pencil, Trash2 } from 'lucide-react'
+import { Plus, Pencil, Trash2, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface Category {
@@ -31,6 +31,7 @@ export default function TransactionsPage() {
   const [form, setForm] = useState({ date: '', description: '', amount: '', type: 'expense', categoryId: '', notes: '' })
   const [filterType, setFilterType] = useState<string>('all')
   const [search, setSearch] = useState('')
+  const [recategorizing, setRecategorizing] = useState(false)
 
   const load = useCallback(() => {
     fetch(`/api/transactions?month=${month}&year=${year}`).then(r => r.json()).then(setTransactions)
@@ -76,6 +77,28 @@ export default function TransactionsPage() {
     }
   }
 
+  async function handleRecategorize() {
+    setRecategorizing(true)
+    try {
+      const res = await fetch('/api/ai/recategorize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ month, year }),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        toast.success(data.message)
+        load()
+      } else {
+        toast.error(data.error || 'Opnieuw categoriseren mislukt')
+      }
+    } catch {
+      toast.error('Opnieuw categoriseren mislukt')
+    } finally {
+      setRecategorizing(false)
+    }
+  }
+
   async function handleDelete(id: string) {
     if (!confirm('Weet je zeker dat je deze transactie wilt verwijderen?')) return
     const res = await fetch(`/api/transactions/${id}`, { method: 'DELETE' })
@@ -99,9 +122,14 @@ export default function TransactionsPage() {
           <h1 className="text-2xl font-bold tracking-tight">Transacties</h1>
           <p className="text-sm text-muted-foreground mt-0.5">Beheer al je inkomsten en uitgaven</p>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={openAdd} className="rounded-xl h-10 shadow-md shadow-primary/20"><Plus className="h-4 w-4 mr-2" />Toevoegen</Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleRecategorize} disabled={recategorizing} className="rounded-xl h-10">
+            <RefreshCw className={`h-4 w-4 mr-2 ${recategorizing ? 'animate-spin' : ''}`} />
+            {recategorizing ? 'Bezig...' : 'Opnieuw categoriseren'}
+          </Button>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={openAdd} className="rounded-xl h-10 shadow-md shadow-primary/20"><Plus className="h-4 w-4 mr-2" />Toevoegen</Button>
           </DialogTrigger>
           <DialogContent className="rounded-2xl">
             <DialogHeader>
@@ -152,7 +180,8 @@ export default function TransactionsPage() {
               <Button type="submit" className="w-full h-11 rounded-xl font-semibold shadow-md shadow-primary/20">{editId ? 'Opslaan' : 'Toevoegen'}</Button>
             </form>
           </DialogContent>
-        </Dialog>
+          </Dialog>
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-2.5 items-center">
