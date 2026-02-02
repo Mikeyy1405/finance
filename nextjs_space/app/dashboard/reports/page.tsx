@@ -99,7 +99,6 @@ export default function ReportsPage() {
   const savings = totalIncome - totalExpenses
   const savingsRate = totalIncome > 0 ? (savings / totalIncome) * 100 : 0
 
-  // Category breakdown for expenses
   const expenseByCategory: Record<string, { name: string; icon: string | null; color: string | null; total: number; count: number }> = {}
   for (const t of expenses) {
     const key = t.category?.name || 'Zonder categorie'
@@ -118,7 +117,6 @@ export default function ReportsPage() {
     }))
     .sort((a, b) => b.total - a.total)
 
-  // Income breakdown
   const incomeByCategory: Record<string, { name: string; icon: string | null; total: number; count: number }> = {}
   for (const t of income) {
     const key = t.category?.name || 'Zonder categorie'
@@ -130,25 +128,28 @@ export default function ReportsPage() {
   }
   const incomeSummaries = Object.values(incomeByCategory).sort((a, b) => b.total - a.total)
 
-  // Top expenses
   const topExpenses = [...expenses].sort((a, b) => b.amount - a.amount).slice(0, 10)
 
-  // Daily spending
-  const dailySpending: Record<string, number> = {}
-  for (const t of expenses) {
-    const day = new Date(t.date).toISOString().split('T')[0]
-    dailySpending[day] = (dailySpending[day] || 0) + t.amount
-  }
   const daysInMonth = new Date(year, month, 0).getDate()
   const avgDailySpending = totalExpenses / daysInMonth
+
+  const overviewCards = [
+    { label: 'Inkomsten', value: formatCurrency(totalIncome), gradient: 'from-emerald-500 to-teal-600', textColor: 'text-emerald-600' },
+    { label: 'Uitgaven', value: formatCurrency(totalExpenses), gradient: 'from-red-500 to-rose-600', textColor: 'text-red-600' },
+    { label: 'Gespaard', value: formatCurrency(savings), gradient: savings >= 0 ? 'from-emerald-500 to-teal-600' : 'from-red-500 to-rose-600', textColor: savings >= 0 ? 'text-emerald-600' : 'text-red-600' },
+    { label: 'Spaarpercentage', value: `${savingsRate.toFixed(1)}%`, gradient: savingsRate >= 20 ? 'from-emerald-500 to-teal-600' : savingsRate >= 0 ? 'from-amber-500 to-orange-600' : 'from-red-500 to-rose-600', textColor: savingsRate >= 20 ? 'text-emerald-600' : savingsRate >= 0 ? 'text-amber-600' : 'text-red-600' },
+  ]
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Maandrapportage</h1>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Maandrapportage</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Inzicht in je financiele prestaties</p>
+        </div>
         <div className="flex gap-2">
           <Select value={String(month)} onValueChange={v => setMonth(parseInt(v))}>
-            <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-[140px] h-10 rounded-xl text-sm"><SelectValue /></SelectTrigger>
             <SelectContent>
               {Array.from({ length: 12 }, (_, i) => (
                 <SelectItem key={i + 1} value={String(i + 1)}>{getMonthName(i + 1)}</SelectItem>
@@ -156,7 +157,7 @@ export default function ReportsPage() {
             </SelectContent>
           </Select>
           <Select value={String(year)} onValueChange={v => setYear(parseInt(v))}>
-            <SelectTrigger className="w-[100px]"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-[100px] h-10 rounded-xl text-sm"><SelectValue /></SelectTrigger>
             <SelectContent>
               {Array.from({ length: 5 }, (_, i) => {
                 const y = now.getFullYear() - 2 + i
@@ -167,56 +168,38 @@ export default function ReportsPage() {
         </div>
       </div>
 
-      {/* Overview */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-xs text-muted-foreground">Inkomsten</p>
-            <p className="text-lg font-bold text-green-600">{formatCurrency(totalIncome)}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-xs text-muted-foreground">Uitgaven</p>
-            <p className="text-lg font-bold text-red-600">{formatCurrency(totalExpenses)}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-xs text-muted-foreground">Gespaard</p>
-            <p className={`text-lg font-bold ${savings >= 0 ? 'text-green-600' : 'text-red-600'}`}>{formatCurrency(savings)}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <p className="text-xs text-muted-foreground">Spaarpercentage</p>
-            <p className={`text-lg font-bold ${savingsRate >= 20 ? 'text-green-600' : savingsRate >= 0 ? 'text-yellow-600' : 'text-red-600'}`}>
-              {savingsRate.toFixed(1)}%
-            </p>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+        {overviewCards.map((card, i) => (
+          <Card key={i} className="premium-shadow border-border/50 overflow-hidden relative group">
+            <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} opacity-[0.03] group-hover:opacity-[0.06] transition-opacity duration-300`} />
+            <CardContent className="p-4 relative">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{card.label}</p>
+              <p className={`text-lg font-bold tabular-nums ${card.textColor}`}>{card.value}</p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      {/* AI Actions */}
-      <div className="flex flex-wrap gap-3">
-        <Button onClick={runAiAnalysis} disabled={aiLoading || transactions.length === 0} variant="default">
+      <div className="flex flex-wrap gap-2.5">
+        <Button onClick={runAiAnalysis} disabled={aiLoading || transactions.length === 0} className="rounded-xl h-10 shadow-md shadow-primary/20">
           {aiLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Sparkles className="h-4 w-4 mr-2" />}
           {aiLoading ? 'Analyseren...' : 'AI Analyse starten'}
         </Button>
         {expenses.filter(t => !t.category).length > 0 && (
-          <Button onClick={runAiCategorize} disabled={catLoading} variant="outline">
+          <Button onClick={runAiCategorize} disabled={catLoading} variant="outline" className="rounded-xl h-10">
             {catLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Brain className="h-4 w-4 mr-2" />}
             {catLoading ? 'Categoriseren...' : `${expenses.filter(t => !t.category).length} transacties AI-categoriseren`}
           </Button>
         )}
       </div>
 
-      {/* AI Analysis Result */}
       {aiAnalysis && (
-        <Card className="border-primary/30 bg-primary/5">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-primary" />
+        <Card className="border-primary/20 bg-primary/[0.02] premium-shadow">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold tracking-tight flex items-center gap-2">
+              <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
+                <Sparkles className="h-3.5 w-3.5 text-white" />
+              </div>
               AI Financiele Analyse - {getMonthName(month)} {year}
             </CardTitle>
           </CardHeader>
@@ -226,27 +209,26 @@ export default function ReportsPage() {
         </Card>
       )}
 
-      {/* Tips */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Snelle Analyse</CardTitle>
+      <Card className="premium-shadow border-border/50">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold tracking-tight">Snelle Analyse</CardTitle>
         </CardHeader>
-        <CardContent className="text-sm space-y-2">
+        <CardContent className="text-sm space-y-2 leading-relaxed">
           {totalExpenses === 0 && totalIncome === 0 ? (
             <p className="text-muted-foreground">Geen transacties gevonden voor deze maand.</p>
           ) : (
             <>
-              {savingsRate >= 20 && <p className="text-green-700">Je bespaart {savingsRate.toFixed(0)}% van je inkomen. Dat is uitstekend!</p>}
-              {savingsRate >= 0 && savingsRate < 20 && <p className="text-yellow-700">Je bespaart {savingsRate.toFixed(0)}% van je inkomen. Probeer richting 20% of meer te streven.</p>}
-              {savingsRate < 0 && <p className="text-red-700">Je geeft meer uit dan je verdient deze maand. Bekijk je grootste uitgavencategorieen hieronder.</p>}
-              <p className="text-muted-foreground">Gemiddeld geef je {formatCurrency(avgDailySpending)} per dag uit.</p>
+              {savingsRate >= 20 && <p className="text-emerald-700 dark:text-emerald-400">Je bespaart {savingsRate.toFixed(0)}% van je inkomen. Dat is uitstekend!</p>}
+              {savingsRate >= 0 && savingsRate < 20 && <p className="text-amber-700 dark:text-amber-400">Je bespaart {savingsRate.toFixed(0)}% van je inkomen. Probeer richting 20% of meer te streven.</p>}
+              {savingsRate < 0 && <p className="text-red-700 dark:text-red-400">Je geeft meer uit dan je verdient deze maand. Bekijk je grootste uitgavencategorieen hieronder.</p>}
+              <p className="text-muted-foreground">Gemiddeld geef je <strong className="text-foreground">{formatCurrency(avgDailySpending)}</strong> per dag uit.</p>
               {categorySummaries.length > 0 && (
                 <p className="text-muted-foreground">
-                  Je grootste uitgavencategorie is <strong>{categorySummaries[0].icon} {categorySummaries[0].name}</strong> met {formatCurrency(categorySummaries[0].total)} ({categorySummaries[0].percentage.toFixed(0)}% van totaal).
+                  Je grootste uitgavencategorie is <strong className="text-foreground">{categorySummaries[0].icon} {categorySummaries[0].name}</strong> met {formatCurrency(categorySummaries[0].total)} ({categorySummaries[0].percentage.toFixed(0)}% van totaal).
                 </p>
               )}
               {expenses.filter(t => !t.category).length > 0 && (
-                <p className="text-yellow-700">
+                <p className="text-amber-700 dark:text-amber-400">
                   {expenses.filter(t => !t.category).length} transacties zijn niet gecategoriseerd.
                   Gebruik de AI-categoriseer knop hierboven of doe het handmatig via Transacties.
                 </p>
@@ -256,93 +238,90 @@ export default function ReportsPage() {
         </CardContent>
       </Card>
 
-      {/* Expense breakdown */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Uitgaven per categorie</CardTitle>
+      <Card className="premium-shadow border-border/50">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold tracking-tight">Uitgaven per categorie</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Categorie</TableHead>
-                <TableHead className="text-right">Bedrag</TableHead>
-                <TableHead className="text-right">%</TableHead>
-                <TableHead className="text-right">Transacties</TableHead>
-                <TableHead className="text-right">Gem./transactie</TableHead>
+              <TableRow className="border-border/50">
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider">Categorie</TableHead>
+                <TableHead className="text-right text-[11px] font-semibold uppercase tracking-wider">Bedrag</TableHead>
+                <TableHead className="text-right text-[11px] font-semibold uppercase tracking-wider">%</TableHead>
+                <TableHead className="text-right text-[11px] font-semibold uppercase tracking-wider">Transacties</TableHead>
+                <TableHead className="text-right text-[11px] font-semibold uppercase tracking-wider">Gem./transactie</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {categorySummaries.map((c, i) => (
-                <TableRow key={i}>
+                <TableRow key={i} className="border-border/50 hover:bg-muted/50 transition-colors">
                   <TableCell className="font-medium">{c.icon} {c.name}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(c.total)}</TableCell>
-                  <TableCell className="text-right">{c.percentage.toFixed(1)}%</TableCell>
-                  <TableCell className="text-right">{c.count}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(c.avgPerTransaction)}</TableCell>
+                  <TableCell className="text-right tabular-nums">{formatCurrency(c.total)}</TableCell>
+                  <TableCell className="text-right tabular-nums">{c.percentage.toFixed(1)}%</TableCell>
+                  <TableCell className="text-right tabular-nums">{c.count}</TableCell>
+                  <TableCell className="text-right tabular-nums">{formatCurrency(c.avgPerTransaction)}</TableCell>
                 </TableRow>
               ))}
               {categorySummaries.length === 0 && (
-                <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground">Geen uitgaven</TableCell></TableRow>
+                <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-8">Geen uitgaven</TableCell></TableRow>
               )}
             </TableBody>
           </Table>
         </CardContent>
       </Card>
 
-      {/* Income breakdown */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Inkomsten per categorie</CardTitle>
+      <Card className="premium-shadow border-border/50">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold tracking-tight">Inkomsten per categorie</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Categorie</TableHead>
-                <TableHead className="text-right">Bedrag</TableHead>
-                <TableHead className="text-right">Transacties</TableHead>
+              <TableRow className="border-border/50">
+                <TableHead className="text-[11px] font-semibold uppercase tracking-wider">Categorie</TableHead>
+                <TableHead className="text-right text-[11px] font-semibold uppercase tracking-wider">Bedrag</TableHead>
+                <TableHead className="text-right text-[11px] font-semibold uppercase tracking-wider">Transacties</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {incomeSummaries.map((c, i) => (
-                <TableRow key={i}>
+                <TableRow key={i} className="border-border/50 hover:bg-muted/50 transition-colors">
                   <TableCell className="font-medium">{c.icon} {c.name}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(c.total)}</TableCell>
-                  <TableCell className="text-right">{c.count}</TableCell>
+                  <TableCell className="text-right tabular-nums">{formatCurrency(c.total)}</TableCell>
+                  <TableCell className="text-right tabular-nums">{c.count}</TableCell>
                 </TableRow>
               ))}
               {incomeSummaries.length === 0 && (
-                <TableRow><TableCell colSpan={3} className="text-center text-muted-foreground">Geen inkomsten</TableCell></TableRow>
+                <TableRow><TableCell colSpan={3} className="text-center text-muted-foreground py-8">Geen inkomsten</TableCell></TableRow>
               )}
             </TableBody>
           </Table>
         </CardContent>
       </Card>
 
-      {/* Top expenses */}
       {topExpenses.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Top 10 grootste uitgaven</CardTitle>
+        <Card className="premium-shadow border-border/50">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold tracking-tight">Top 10 grootste uitgaven</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Datum</TableHead>
-                  <TableHead>Omschrijving</TableHead>
-                  <TableHead>Categorie</TableHead>
-                  <TableHead className="text-right">Bedrag</TableHead>
+                <TableRow className="border-border/50">
+                  <TableHead className="text-[11px] font-semibold uppercase tracking-wider">Datum</TableHead>
+                  <TableHead className="text-[11px] font-semibold uppercase tracking-wider">Omschrijving</TableHead>
+                  <TableHead className="text-[11px] font-semibold uppercase tracking-wider">Categorie</TableHead>
+                  <TableHead className="text-right text-[11px] font-semibold uppercase tracking-wider">Bedrag</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {topExpenses.map(t => (
-                  <TableRow key={t.id}>
-                    <TableCell className="text-sm">{new Date(t.date).toLocaleDateString('nl-NL')}</TableCell>
+                  <TableRow key={t.id} className="border-border/50 hover:bg-muted/50 transition-colors">
+                    <TableCell className="text-sm tabular-nums">{new Date(t.date).toLocaleDateString('nl-NL')}</TableCell>
                     <TableCell className="text-sm">{t.description}</TableCell>
                     <TableCell className="text-sm">{t.category ? `${t.category.icon || ''} ${t.category.name}` : '—'}</TableCell>
-                    <TableCell className="text-right text-sm font-medium text-red-600">{formatCurrency(t.amount)}</TableCell>
+                    <TableCell className="text-right text-sm font-semibold text-red-600 tabular-nums">{formatCurrency(t.amount)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
