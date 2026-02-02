@@ -37,15 +37,23 @@ export async function POST(request: NextRequest) {
     const user = await requireAuth()
     const body = await request.json()
 
+    // Convert date string to Date object
+    const data: any = { 
+      ...body, 
+      userId: user.id,
+      date: new Date(body.date),
+    }
+
     const created = await prisma.mealPlan.create({
-      data: { ...body, userId: user.id },
+      data,
     })
 
     return NextResponse.json(created, { status: 201 })
   } catch (error: any) {
+    console.error('Error creating meal plan:', error)
     if (error?.status === 401 || error?.message === 'Unauthorized') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
   }
 }

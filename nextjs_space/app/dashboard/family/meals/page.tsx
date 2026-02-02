@@ -93,7 +93,7 @@ export default function MealsPage() {
     const start = formatDateKey(weekDates[0])
     const end = formatDateKey(weekDates[6])
     try {
-      const res = await fetch(`/api/family/meals?start=${start}&end=${end}`)
+      const res = await fetch(`/api/family/meals?startDate=${start}&endDate=${end}`)
       if (res.ok) {
         const json = await res.json()
         setMeals(json)
