@@ -31,6 +31,7 @@ import {
   Car,
   CreditCard,
   ChevronDown,
+  Sparkles,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -146,11 +147,11 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       <div className="px-6 py-8">
         <div className="flex items-center gap-3">
           <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center shadow-lg shadow-violet-500/25">
-            <span className="text-white font-bold text-sm">L</span>
+            <Sparkles className="h-4 w-4 text-white" />
           </div>
           <div>
-            <h1 className="text-base font-bold tracking-tight">LifeManager</h1>
-            <p className="text-[11px] text-muted-foreground font-medium tracking-wide uppercase">Beheer je leven</p>
+            <h1 className="text-base font-bold tracking-tight">Livio</h1>
+            <p className="text-[11px] text-muted-foreground font-medium tracking-wide uppercase">Slim georganiseerd</p>
           </div>
         </div>
       </div>
@@ -256,9 +257,9 @@ export function MobileHeader() {
       </Sheet>
       <div className="flex items-center gap-2.5">
         <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center">
-          <span className="text-white font-bold text-xs">L</span>
+          <Sparkles className="h-3.5 w-3.5 text-white" />
         </div>
-        <h1 className="text-base font-bold tracking-tight">LifeManager</h1>
+        <h1 className="text-base font-bold tracking-tight">Livio</h1>
       </div>
     </header>
   )

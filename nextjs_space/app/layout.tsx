@@ -4,8 +4,8 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from 'sonner';
 
 export const metadata: Metadata = {
-  title: 'FinanceTracker - Persoonlijke Financien',
-  description: 'Beheer je persoonlijke financien, budgetten en bankafschriften',
+  title: 'Livio - Jouw leven, slim georganiseerd',
+  description: 'Beheer je financien, gezondheid, gezin en doelen op een plek',
 };
 
 export default function RootLayout({
