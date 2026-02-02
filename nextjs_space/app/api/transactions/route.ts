@@ -23,7 +23,8 @@ export async function GET(req: NextRequest) {
       where.date = { gte: start, lt: end }
     }
 
-    if (categoryId) where.categoryId = categoryId
+    if (categoryId === 'none') where.categoryId = null
+    else if (categoryId) where.categoryId = categoryId
     if (type) where.type = type
 
     const transactions = await prisma.transaction.findMany({
