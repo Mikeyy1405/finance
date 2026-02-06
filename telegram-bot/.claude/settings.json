@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Write",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Bash(git *)",
+      "Bash(npm *)",
+      "Bash(bun *)",
+      "Bash(npx *)",
+      "Bash(node *)",
+      "Bash(cat *)",
+      "Bash(ls *)",
+      "Bash(pwd)",
+      "Bash(mkdir *)",
+      "Bash(cp *)",
+      "Bash(mv *)",
+      "Bash(curl *)",
+      "WebFetch",
+      "WebSearch",
+      "Task",
+      "mcp__*"
+    ],
+    "deny": [
+      "Bash(rm -rf /)",
+      "Bash(rm -rf /*)",
+      "Bash(sudo rm *)",
+      "Bash(chmod 777 *)",
+      "Bash(> /dev/sda)",
+      "Bash(dd if=*)",
+      "Bash(mkfs*)",
+      "Bash(:(){ :|:& };:)"
+    ]
+  },
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/home/user/finance"]
+    }
+  }
+}
